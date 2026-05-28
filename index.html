@@ -8,6 +8,7 @@
 <link rel="icon" type="image/png" href="favicon.png" />
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="favicon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="PPEPlan" />
@@ -591,7 +592,10 @@ function renderGantt() {
   if (active.length === 0) return `<div class="empty-state"><h3>Sem atividades para mostrar</h3></div>`;
   const today=today0(); const minDate=today; let maxDate=addDays(today,28);
   active.forEach(t=>{if(t.deadline){const d=addDays(new Date(t.deadline),1);if(d>maxDate)maxDate=d;} if(t.scheduledEnd){const d=addDays(new Date(t.scheduledEnd),2);if(d>maxDate)maxDate=d;}});
-  const totalDays=Math.max(28,dayDiff(maxDate,minDate)); const TC=220;
+  const totalDays=Math.max(28,dayDiff(maxDate,minDate));
+  // Largura da coluna de títulos calculada com base no título mais longo + badge de prioridade + padding
+  const maxTitleLen = Math.max(0, ...active.map(t => (t.title || "").length + (t.assignee ? t.assignee.length + 3 : 0)));
+  const TC = Math.min(500, Math.max(220, maxTitleLen * 7.5 + 70));
   const ce=document.querySelector('#content'); const ci=((ce&&ce.clientWidth)||900)-40;
   const vt=Math.max(320,ci-TC); const dw=Math.max(22,Math.floor(vt/28)); const tw=dw*totalDays;
   let dc=""; for(let i=0;i<totalDays;i++){const d=addDays(minDate,i); const it=isoDate(d)===isoDate(today); const we=d.getDay()===0||d.getDay()===6; dc+=`<div class="gantt-date ${it?'today':''} ${we?'weekend':''}">${d.getDate()}/${d.getMonth()+1}</div>`;}
