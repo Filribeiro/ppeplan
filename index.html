@@ -250,7 +250,8 @@
     overflow: hidden;
     box-sizing: border-box;
   }
-  /* Marca de fim-de-semana via overlay (subtil) */
+  /* Overlay para fins-de-semana */
+  .gmc-weekend { position: absolute; top: 0; bottom: 0; background: rgba(40,40,60,0.10); pointer-events: none; z-index: 0; }
   .gmc-bar { position: absolute; top: 2px; bottom: 2px; min-width: 4px; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: 700; padding: 0 4px; overflow: hidden; box-shadow: var(--shadow-sm); z-index: 1; }
   .gmc-today-marker { position: absolute; top: -1px; bottom: -1px; width: 2px; background: var(--accent); z-index: 3; }
   .gmc-deadline { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--danger); z-index: 2; }
@@ -653,8 +654,16 @@ function renderGantt() {
   }).join("");
   // Mobile alternative: vertical cards with mini progress bar in 4-week window
   const WINDOW = 28;
-  // Labels: início de cada semana (5 marcas: dia 0, 7, 14, 21, 28)
+  // Labels: início de cada semana (5 marcas: dia 0, 7, 14, 21, 27)
   const weekLabels = [0, 7, 14, 21, 27].map(d => fmtDate(addDays(today, d))).map((l, i) => `<span>${l}</span>`).join("");
+  // Fins-de-semana: overlay tintado em cada Sáb/Dom dentro das 4 semanas
+  let weekendCells = "";
+  for (let i = 0; i < WINDOW; i++) {
+    const d = addDays(today, i);
+    if (d.getDay() === 0 || d.getDay() === 6) {
+      weekendCells += `<div class="gmc-weekend" style="left:${(i/WINDOW)*100}%;width:${100/WINDOW}%"></div>`;
+    }
+  }
 
   const mobileCards = sorted.map(t => {
     const ac = assigneeColor(t.assignee);
@@ -673,7 +682,7 @@ function renderGantt() {
     return `<div class="gantt-mobile-card" data-id="${t.id}">
       <div class="gmc-header"><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span><span class="gmc-title">${tag}${escapeHtml(t.title)}</span></div>
       <div class="gmc-window-labels">${weekLabels}</div>
-      <div class="gmc-track"><div class="gmc-bar" style="left:${startPct}%;width:${widthPct}%;background:${barBg}">${t.estimatedHours}h</div>${!dlBeyond ? `<div class="gmc-deadline" style="left:${dlPct}%" title="Deadline"></div>` : ''}</div>
+      <div class="gmc-track">${weekendCells}<div class="gmc-bar" style="left:${startPct}%;width:${widthPct}%;background:${barBg}">${t.estimatedHours}h</div>${!dlBeyond ? `<div class="gmc-deadline" style="left:${dlPct}%" title="Deadline"></div>` : ''}</div>
       <div class="gmc-meta"><span>${fmtDate(t.scheduledStart)} → ${fmtDate(t.scheduledEnd)}</span><span class="sep">•</span><span>Deadline: ${fmtDate(t.deadline)}${dlBeyond ? ' (>4sem)' : ''}</span></div>
     </div>`;
   }).join("");
