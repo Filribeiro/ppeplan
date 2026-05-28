@@ -227,6 +227,19 @@
   ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 5px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--text-soft); }
 
+  /* Gantt Mobile — vertical cards com mini barra */
+  .gantt-mobile { display: none; flex-direction: column; gap: 10px; }
+  .gantt-mobile-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; box-shadow: var(--shadow-sm); cursor: pointer; }
+  .gmc-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .gmc-title { font-size: 13px; font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gmc-track { position: relative; height: 22px; background: var(--surface-warm); border-radius: 6px; margin-bottom: 8px; overflow: visible; }
+  .gmc-bar { position: absolute; top: 0; bottom: 0; min-width: 8px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: 700; padding: 0 4px; overflow: hidden; box-shadow: var(--shadow-sm); }
+  .gmc-deadline { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--danger); z-index: 2; }
+  .gmc-deadline::before { content: ""; position: absolute; top: -3px; left: -3px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; }
+  .gmc-meta { display: flex; gap: 6px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; align-items: center; }
+  .gmc-meta .sep { opacity: 0.4; }
+  .gmc-window-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-soft); padding: 0 2px 4px; margin-bottom: 6px; }
+
   /* Floating Action Button (mobile-only) */
   .fab { display: none; position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: #fff; border: none; align-items: center; justify-content: center; font-size: 28px; font-weight: 300; box-shadow: var(--shadow-lg); z-index: 95; cursor: pointer; line-height: 1; }
   .fab:active { transform: scale(0.95); }
@@ -269,7 +282,9 @@
     .task-actions { gap: 0; }
     .icon-btn { width: 28px; height: 28px; font-size: 14px; }
 
-    /* Gantt: mantém o scroll horizontal */
+    /* Gantt desktop escondido em mobile; mostra vista mobile alternativa */
+    .gantt-scroll { display: none; }
+    .gantt-mobile { display: flex; }
     .gantt-cell-label { padding: 8px 10px; font-size: 10px; }
 
     /* Calendário: células mais compactas */
@@ -625,7 +640,31 @@ function renderGantt() {
     const ac=assigneeColor(t.assignee);
     return `<div class="gantt-row" data-id="${t.id}"><div class="gantt-task-name"><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span><span class="title" title="${escapeHtml(t.title)}">${escapeHtml(t.title)}</span></div><div class="gantt-timeline" style="grid-template-columns: repeat(${totalDays}, ${dw}px); width: ${tw}px">${dcs}<div class="gantt-bar ${t.riskLevel}" style="left:${l}px;width:${w}px${ac?';background:'+ac.solid:''}">${t.estimatedHours}h${t.assignee?`<span class="assignee-mini">${escapeHtml(t.assignee)}</span>`:''}</div><div class="gantt-deadline" style="left:${dlo}px"></div></div></div>`;
   }).join("");
-  return `${renderStats()}<div class="gantt"><div class="gantt-scroll"><div style="min-width: ${TC+tw}px; --gantt-task-col: ${TC}px"><div class="gantt-header-row"><div class="gantt-cell-label">Atividade</div><div class="gantt-dates" style="grid-template-columns: repeat(${totalDays}, ${dw}px); width: ${tw}px">${dc}</div></div>${rows}</div></div></div>`;
+  // Mobile alternative: vertical cards with mini progress bar in 4-week window
+  const WINDOW = 28;
+  const mobileCards = sorted.map(t => {
+    const ac = assigneeColor(t.assignee);
+    const st = t.scheduledStart?new Date(t.scheduledStart):new Date(t.deadline);
+    const en = t.scheduledEnd?new Date(t.scheduledEnd):new Date(t.deadline);
+    const dl = new Date(t.deadline);
+    const so = Math.max(0, dayDiff(st, today));
+    const du = Math.max(1, dayDiff(en, st)+1);
+    const dlo = dayDiff(dl, today);
+    const startPct = Math.min(100, (so/WINDOW)*100);
+    const widthPct = Math.min(100-startPct, (du/WINDOW)*100);
+    const dlBeyond = dlo > WINDOW;
+    const dlPct = Math.min(100, Math.max(0, (dlo/WINDOW)*100));
+    const barBg = ac ? ac.solid : (t.riskLevel==="risk" ? "var(--danger)" : t.riskLevel==="tight" ? "var(--warning)" : "var(--success)");
+    const tag = t.assignee && ac ? `<span class="assignee-tag" style="background:${ac.bg};color:${ac.text}">${escapeHtml(t.assignee)}</span>` : '';
+    return `<div class="gantt-mobile-card" data-id="${t.id}">
+      <div class="gmc-header"><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span><span class="gmc-title">${tag}${escapeHtml(t.title)}</span></div>
+      <div class="gmc-track"><div class="gmc-bar" style="left:${startPct}%;width:${widthPct}%;background:${barBg}">${t.estimatedHours}h</div>${!dlBeyond ? `<div class="gmc-deadline" style="left:${dlPct}%" title="Deadline"></div>` : ''}</div>
+      <div class="gmc-window-labels"><span>Hoje</span><span>+${WINDOW}d</span></div>
+      <div class="gmc-meta"><span>${fmtDate(t.scheduledStart)} → ${fmtDate(t.scheduledEnd)}</span><span class="sep">•</span><span>Deadline: ${fmtDate(t.deadline)}${dlBeyond ? ' (>4sem)' : ''}</span><span class="sep">•</span><span>${t.riskLevel==='risk'?'⚠ Em risco':t.riskLevel==='tight'?'⏳ Apertado':'✓ No prazo'}</span></div>
+    </div>`;
+  }).join("");
+
+  return `${renderStats()}<div class="gantt"><div class="gantt-scroll"><div style="min-width: ${TC+tw}px; --gantt-task-col: ${TC}px"><div class="gantt-header-row"><div class="gantt-cell-label">Atividade</div><div class="gantt-dates" style="grid-template-columns: repeat(${totalDays}, ${dw}px); width: ${tw}px">${dc}</div></div>${rows}</div></div></div><div class="gantt-mobile">${mobileCards}</div>`;
 }
 function getMondayOf(d) { const r=new Date(d); r.setHours(0,0,0,0); r.setDate(r.getDate()-((r.getDay()+6)%7)); return r; }
 function renderCalendar() {
