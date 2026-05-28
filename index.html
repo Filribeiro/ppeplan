@@ -483,16 +483,26 @@ function initGIS() {
       await onSignedIn();
     }
   });
-  // Reaproveita token só se ainda estiver na sessionStorage (mesma sessão de browser)
   const savedToken = sessionStorage.getItem("ppeplan-access-token");
+  const wasSignedIn = localStorage.getItem("ppeplan-signed-in") === "1";
   if (savedToken) {
     accessToken = savedToken;
-    onSignedIn().catch(() => { accessToken=null; sessionStorage.removeItem("ppeplan-access-token"); setSyncStatus("local"); });
+    onSignedIn().catch(() => { accessToken=null; sessionStorage.removeItem("ppeplan-access-token"); attemptSilentAuth(); });
+  } else if (wasSignedIn) {
+    // Tenta autenticação silenciosa SEM popup (prompt:"none")
+    // Se falhar silenciosamente, fica "Local" e user clica pill para forçar
+    attemptSilentAuth();
   } else {
-    // Sem token na sessão — NÃO tenta auth automática. App fica em "Local".
-    // Para sincronizar, utilizador clica no pill.
     setSyncStatus("local");
   }
+}
+function attemptSilentAuth() {
+  if (!tokenClient) { setSyncStatus("local"); return; }
+  setSyncStatus("dirty");
+  try { tokenClient.requestAccessToken({ prompt: "none" }); }
+  catch (e) { setSyncStatus("local"); }
+  // Timeout: se não responder em 5s, assume falha silenciosa
+  setTimeout(() => { if (!accessToken) setSyncStatus("local"); }, 5000);
 }
 function signIn() { if (!tokenClient) { toast("A carregar...", "error"); return; } tokenClient.requestAccessToken({}); }
 function signOut() { if (accessToken && google.accounts) google.accounts.oauth2.revoke(accessToken, ()=>{}); accessToken=null; driveFileId=null; sessionStorage.removeItem("ppeplan-access-token"); localStorage.removeItem(DRIVE_FILE_ID_KEY); localStorage.removeItem("ppeplan-signed-in"); showWelcome(); toast("Sessão terminada"); }
