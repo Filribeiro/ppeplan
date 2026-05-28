@@ -217,6 +217,12 @@
   .settings-label { font-weight: 500; }
   .settings-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
+  .sync-banner { display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; background: var(--ppe-red-soft); color: var(--ppe-red-dark); border-bottom: 1px solid var(--ppe-red); font-size: 13px; font-weight: 500; }
+  .sync-banner.show { display: flex; }
+  .sync-banner button { padding: 6px 14px; background: var(--ppe-red); color: #fff; border: none; border-radius: var(--radius-pill); font-weight: 600; font-size: 12px; cursor: pointer; }
+  .sync-banner button:hover { background: var(--ppe-red-dark); }
+  .sync-banner .dismiss { background: transparent; color: var(--ppe-red-dark); padding: 4px 8px; font-size: 16px; }
+  .sync-banner .dismiss:hover { background: rgba(160,37,48,0.1); }
   .welcome-screen { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; padding: 24px; text-align: center; }
   .welcome-screen.hidden { display: none; }
   .welcome-screen img { height: 60px; margin-bottom: 24px; }
@@ -337,6 +343,13 @@
       <button class="btn-ghost" id="btn-settings" title="Definições">⚙</button>
     </div>
   </header>
+  <div class="sync-banner" id="sync-banner">
+    <span>⚠ Não sincronizado — podes estar a ver dados desatualizados</span>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button id="banner-signin">Sincronizar com Drive</button>
+      <button class="dismiss" id="banner-dismiss" title="Dispensar">✕</button>
+    </div>
+  </div>
   <main class="main">
     <aside class="sidebar" id="sidebar">
       <button class="sidebar-close" id="sidebar-close" aria-label="Fechar">✕</button>
@@ -571,7 +584,15 @@ function showWelcome() {
   // Welcome ecrã removido — app sempre disponível
   setSyncStatus("local");
 }
-function setSyncStatus(s) { syncStatus=s; const p=$("#sync-pill"), t=$("#sync-text"); p.classList.remove("dirty","local","error"); if(s==="saved") t.textContent="Sincronizado"; else if(s==="dirty"){t.textContent="A gravar..."; p.classList.add("dirty");} else if(s==="error"){t.textContent="Erro"; p.classList.add("error");} else {t.textContent="Local"; p.classList.add("local");} }
+function setSyncStatus(s) {
+  syncStatus=s;
+  const p=$("#sync-pill"), t=$("#sync-text"), banner=$("#sync-banner");
+  p.classList.remove("dirty","local","error");
+  if(s==="saved") { t.textContent="Sincronizado"; if(banner) banner.classList.remove("show"); }
+  else if(s==="dirty"){t.textContent="A gravar..."; p.classList.add("dirty"); if(banner) banner.classList.remove("show"); }
+  else if(s==="error"){t.textContent="Erro"; p.classList.add("error"); if(banner && localStorage.getItem("ppeplan-banner-dismissed")!=="1") banner.classList.add("show"); }
+  else {t.textContent="Local"; p.classList.add("local"); if(banner && localStorage.getItem("ppeplan-banner-dismissed")!=="1") banner.classList.add("show"); }
+}
 
 function addTask({title, description, deadline, estimatedHours, manualPriority, assignee}) { state.tasks.push({id:uid(), title, description:description||"", deadline, estimatedHours:parseFloat(estimatedHours), manualPriority:parseInt(manualPriority,10), assignee:(assignee||"").trim()||null, status:"pending", createdAt:new Date().toISOString(), manualOrder:null}); scheduleSave(); render(); }
 function updateTask(id, patch) { const t=state.tasks.find(x=>x.id===id); if(!t) return; Object.assign(t,patch); if(patch.status==="completed" && !t.completedAt) t.completedAt=new Date().toISOString(); if(patch.status && patch.status!=="completed") t.completedAt=null; scheduleSave(); render(); }
@@ -701,6 +722,9 @@ function init() {
   $("#task-form").addEventListener("submit", e=>{e.preventDefault(); const t=$("#t-title").value.trim(), d=$("#t-deadline").value, h=parseFloat($("#t-hours").value), n=$("#t-desc").value.trim(), a=$("#t-assignee").value.trim().toUpperCase(); if(!t||!d||!h){toast("Campos em falta","error"); return;} addTask({title:t, description:n, deadline:d, estimatedHours:h, manualPriority:state.newTaskPriority, assignee:a}); e.target.reset(); $("#t-deadline").value=isoDate(today0()); $("#t-hours").value=4; $("#t-assignee").value=""; $$("#priority-picker button").forEach(x=>x.classList.toggle("active", x.dataset.p==="3")); state.newTaskPriority=3; toast("Adicionada");});
   // Clica no pill para sincronizar (entrar com Google) quando está "Local"
   $("#sync-pill").addEventListener("click", () => { if (!accessToken) signIn(); });
+  // Banner sincronizar
+  $("#banner-signin").addEventListener("click", () => { localStorage.removeItem("ppeplan-banner-dismissed"); signIn(); });
+  $("#banner-dismiss").addEventListener("click", () => { localStorage.setItem("ppeplan-banner-dismissed", "1"); $("#sync-banner").classList.remove("show"); });
   $("#btn-settings").addEventListener("click", openSettings);
 
   // FAB para mobile — abre sidebar como bottom sheet
