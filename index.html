@@ -475,34 +475,23 @@ function initGIS() {
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID, scope: SCOPES,
     callback: async (r) => {
-      if (r.error) {
-        // Silent auth falhou — não bloqueia a app, fica em modo "Local"
-        setSyncStatus("local");
-        return;
-      }
+      if (r.error) { setSyncStatus("local"); return; }
       accessToken = r.access_token;
       sessionStorage.setItem("ppeplan-access-token", accessToken);
       localStorage.setItem("ppeplan-signed-in", "1");
       await onSignedIn();
     }
   });
+  // Reaproveita token só se ainda estiver na sessionStorage (mesma sessão de browser)
   const savedToken = sessionStorage.getItem("ppeplan-access-token");
-  const wasSignedIn = localStorage.getItem("ppeplan-signed-in") === "1";
   if (savedToken) {
     accessToken = savedToken;
-    onSignedIn().catch(() => { accessToken=null; sessionStorage.removeItem("ppeplan-access-token"); attemptSilentAuth(); });
-  } else if (wasSignedIn) {
-    attemptSilentAuth();
+    onSignedIn().catch(() => { accessToken=null; sessionStorage.removeItem("ppeplan-access-token"); setSyncStatus("local"); });
   } else {
+    // Sem token na sessão — NÃO tenta auth automática. App fica em "Local".
+    // Para sincronizar, utilizador clica no pill.
     setSyncStatus("local");
   }
-}
-function attemptSilentAuth() {
-  if (!tokenClient) { setSyncStatus("local"); return; }
-  setSyncStatus("dirty"); // mostra "A gravar..." enquanto tenta
-  try { tokenClient.requestAccessToken({ prompt: "none" }); }
-  catch (e) { setSyncStatus("local"); }
-  setTimeout(() => { if (!accessToken) setSyncStatus("local"); }, 6000);
 }
 function signIn() { if (!tokenClient) { toast("A carregar...", "error"); return; } tokenClient.requestAccessToken({}); }
 function signOut() { if (accessToken && google.accounts) google.accounts.oauth2.revoke(accessToken, ()=>{}); accessToken=null; driveFileId=null; sessionStorage.removeItem("ppeplan-access-token"); localStorage.removeItem(DRIVE_FILE_ID_KEY); localStorage.removeItem("ppeplan-signed-in"); showWelcome(); toast("Sessão terminada"); }
