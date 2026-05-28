@@ -495,11 +495,11 @@ function initGIS() {
 }
 function attemptSilentAuth() {
   if (!tokenClient) { showWelcome(); return; }
-  // prompt vazio = tenta silenciosamente, sem popup se já houver sessão Google
-  try { tokenClient.requestAccessToken({ prompt: "" }); }
+  // prompt:"none" = tenta SEM qualquer UI; falha imediatamente se precisar de interação
+  try { tokenClient.requestAccessToken({ prompt: "none" }); }
   catch (e) { showWelcome(); }
-  // Se o callback do tokenClient demorar mais de 8 segundos, assumimos que falhou e mostramos welcome
-  setTimeout(() => { if (!accessToken) showWelcome(); }, 8000);
+  // Se o callback do tokenClient demorar mais de 6 segundos, assumimos que falhou
+  setTimeout(() => { if (!accessToken) showWelcome(); }, 6000);
 }
 function showConnecting() {
   const ws = $("#welcome-screen");
@@ -508,7 +508,7 @@ function showConnecting() {
   const b = document.getElementById("btn-signin-fallback"); if (b) b.addEventListener("click", signIn);
   $("#app-main").style.display = "none";
 }
-function signIn() { if (!tokenClient) { toast("A carregar...", "error"); return; } tokenClient.requestAccessToken({ prompt: "" }); }
+function signIn() { if (!tokenClient) { toast("A carregar...", "error"); return; } tokenClient.requestAccessToken({}); }
 function signOut() { if (accessToken && google.accounts) google.accounts.oauth2.revoke(accessToken, ()=>{}); accessToken=null; driveFileId=null; sessionStorage.removeItem("ppeplan-access-token"); localStorage.removeItem(DRIVE_FILE_ID_KEY); localStorage.removeItem("ppeplan-signed-in"); showWelcome(); toast("Sessão terminada"); }
 async function driveCall(url, opts={}) {
   if (!accessToken) throw new Error("Não autenticado");
@@ -517,7 +517,7 @@ async function driveCall(url, opts={}) {
     accessToken = null; sessionStorage.removeItem("ppeplan-access-token");
     return new Promise(resolve => {
       tokenClient.callback = async r => { if (r.error) { resolve(res); return; } accessToken=r.access_token; sessionStorage.setItem("ppeplan-access-token", accessToken); const retry = await fetch(url, {...opts, headers:{"Authorization":"Bearer "+accessToken, ...(opts.headers||{})}}); resolve(retry); };
-      tokenClient.requestAccessToken({ prompt: "" });
+      tokenClient.requestAccessToken({ prompt: "none" });
     });
   }
   return res;
