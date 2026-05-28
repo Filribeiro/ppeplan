@@ -680,8 +680,6 @@ function importData(f) { const r=new FileReader(); r.onload=()=>{ try { const d=
 
 function init() {
   loadLocal();
-  // Guarda HTML original do welcome screen para poder restaurar depois
-  _welcomeOriginalHTML = $("#welcome-screen").innerHTML;
   $("#t-deadline").value = isoDate(today0());
   $$("#tabs .tab").forEach(t=>t.addEventListener("click", ()=>{$$("#tabs .tab").forEach(x=>x.classList.remove("active")); t.classList.add("active"); state.view=t.dataset.view; render();}));
   $$("#priority-picker button").forEach(b=>b.addEventListener("click", ()=>{$$("#priority-picker button").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.newTaskPriority=parseInt(b.dataset.p,10);}));
