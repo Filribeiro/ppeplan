@@ -466,14 +466,50 @@ function initGIS() {
   if (typeof google === "undefined" || !google.accounts) { setTimeout(initGIS, 200); return; }
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID, scope: SCOPES,
-    callback: async (r) => { if (r.error) { toast("Erro: "+r.error, "error"); return; } accessToken = r.access_token; sessionStorage.setItem("ppeplan-access-token", accessToken); await onSignedIn(); }
+    callback: async (r) => {
+      if (r.error) {
+        // Silent auth falhou (ex: utilizador desconectou-se do Google ou revogou). Mostra ecrã de boas-vindas.
+        if (r.error === "popup_closed" || r.error === "access_denied") { showWelcome(); return; }
+        // Outros erros (rede, etc) — fica em welcome para o user clicar manualmente
+        toast("Auth: " + r.error, "error"); showWelcome(); return;
+      }
+      accessToken = r.access_token;
+      sessionStorage.setItem("ppeplan-access-token", accessToken);
+      localStorage.setItem("ppeplan-signed-in", "1");
+      await onSignedIn();
+    }
   });
-  const saved = sessionStorage.getItem("ppeplan-access-token");
-  if (saved) { accessToken = saved; onSignedIn().catch(() => { accessToken=null; sessionStorage.removeItem("ppeplan-access-token"); showWelcome(); }); }
-  else showWelcome();
+  const savedToken = sessionStorage.getItem("ppeplan-access-token");
+  const wasSignedIn = localStorage.getItem("ppeplan-signed-in") === "1";
+  if (savedToken) {
+    // Token ainda fresco — reusa
+    accessToken = savedToken;
+    onSignedIn().catch(() => { accessToken=null; sessionStorage.removeItem("ppeplan-access-token"); attemptSilentAuth(); });
+  } else if (wasSignedIn) {
+    // Sem token mas já entrou antes — tenta auth silenciosa sem mostrar ecrã de welcome
+    showConnecting();
+    attemptSilentAuth();
+  } else {
+    showWelcome();
+  }
+}
+function attemptSilentAuth() {
+  if (!tokenClient) { showWelcome(); return; }
+  // prompt vazio = tenta silenciosamente, sem popup se já houver sessão Google
+  try { tokenClient.requestAccessToken({ prompt: "" }); }
+  catch (e) { showWelcome(); }
+  // Se o callback do tokenClient demorar mais de 8 segundos, assumimos que falhou e mostramos welcome
+  setTimeout(() => { if (!accessToken) showWelcome(); }, 8000);
+}
+function showConnecting() {
+  const ws = $("#welcome-screen");
+  ws.classList.remove("hidden");
+  ws.innerHTML = `<div style="text-align:center;color:var(--text-muted)"><div style="font-size:14px;margin-bottom:8px">A conectar ao Google Drive...</div><div style="font-size:12px">Se demorar, clica para entrar manualmente</div><button class="btn-primary" id="btn-signin-fallback" style="max-width:280px;margin-top:18px">Entrar com Google</button></div>`;
+  const b = document.getElementById("btn-signin-fallback"); if (b) b.addEventListener("click", signIn);
+  $("#app-main").style.display = "none";
 }
 function signIn() { if (!tokenClient) { toast("A carregar...", "error"); return; } tokenClient.requestAccessToken({ prompt: "" }); }
-function signOut() { if (accessToken && google.accounts) google.accounts.oauth2.revoke(accessToken, ()=>{}); accessToken=null; driveFileId=null; sessionStorage.removeItem("ppeplan-access-token"); localStorage.removeItem(DRIVE_FILE_ID_KEY); showWelcome(); toast("Sessão terminada"); }
+function signOut() { if (accessToken && google.accounts) google.accounts.oauth2.revoke(accessToken, ()=>{}); accessToken=null; driveFileId=null; sessionStorage.removeItem("ppeplan-access-token"); localStorage.removeItem(DRIVE_FILE_ID_KEY); localStorage.removeItem("ppeplan-signed-in"); showWelcome(); toast("Sessão terminada"); }
 async function driveCall(url, opts={}) {
   if (!accessToken) throw new Error("Não autenticado");
   const res = await fetch(url, {...opts, headers: {"Authorization":"Bearer "+accessToken, ...(opts.headers||{})}});
@@ -536,7 +572,15 @@ async function onSignedIn() {
     else { if (state.tasks.length > 0) await saveToDrive(); else { if (confirm("Drive vazio. Importar de um JSON existente?")) $("#import-file").click(); else setSyncStatus("saved"); } }
   } catch(e) { toast("Erro ao ligar ao Drive: "+e.message, "error"); setSyncStatus("error"); }
 }
-function showWelcome() { $("#welcome-screen").classList.remove("hidden"); $("#app-main").style.display = "none"; }
+let _welcomeOriginalHTML = null;
+function showWelcome() {
+  const ws = $("#welcome-screen");
+  if (_welcomeOriginalHTML) ws.innerHTML = _welcomeOriginalHTML;
+  ws.classList.remove("hidden");
+  $("#app-main").style.display = "none";
+  // Rebind do botão (porque pode ter sido recriado)
+  const b = document.getElementById("btn-signin"); if (b) b.onclick = signIn;
+}
 function setSyncStatus(s) { syncStatus=s; const p=$("#sync-pill"), t=$("#sync-text"); p.classList.remove("dirty","local","error"); if(s==="saved") t.textContent="Sincronizado"; else if(s==="dirty"){t.textContent="A gravar..."; p.classList.add("dirty");} else if(s==="error"){t.textContent="Erro"; p.classList.add("error");} else {t.textContent="Local"; p.classList.add("local");} }
 
 function addTask({title, description, deadline, estimatedHours, manualPriority, assignee}) { state.tasks.push({id:uid(), title, description:description||"", deadline, estimatedHours:parseFloat(estimatedHours), manualPriority:parseInt(manualPriority,10), assignee:(assignee||"").trim()||null, status:"pending", createdAt:new Date().toISOString(), manualOrder:null}); scheduleSave(); render(); }
@@ -633,6 +677,8 @@ function importData(f) { const r=new FileReader(); r.onload=()=>{ try { const d=
 
 function init() {
   loadLocal();
+  // Guarda HTML original do welcome screen para poder restaurar depois
+  _welcomeOriginalHTML = $("#welcome-screen").innerHTML;
   $("#t-deadline").value = isoDate(today0());
   $$("#tabs .tab").forEach(t=>t.addEventListener("click", ()=>{$$("#tabs .tab").forEach(x=>x.classList.remove("active")); t.classList.add("active"); state.view=t.dataset.view; render();}));
   $$("#priority-picker button").forEach(b=>b.addEventListener("click", ()=>{$$("#priority-picker button").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.newTaskPriority=parseInt(b.dataset.p,10);}));
