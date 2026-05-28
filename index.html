@@ -226,6 +226,85 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 5px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--text-soft); }
+
+  /* Floating Action Button (mobile-only) */
+  .fab { display: none; position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: #fff; border: none; align-items: center; justify-content: center; font-size: 28px; font-weight: 300; box-shadow: var(--shadow-lg); z-index: 95; cursor: pointer; line-height: 1; }
+  .fab:active { transform: scale(0.95); }
+  .sidebar-close { display: none; position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; background: var(--surface-warm); border: 1px solid var(--border); border-radius: 50%; font-size: 18px; color: var(--text); cursor: pointer; align-items: center; justify-content: center; }
+  .scrim { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 80; }
+  .scrim.active { display: block; }
+
+  /* ============ MOBILE (<= 768px) ============ */
+  @media (max-width: 768px) {
+    html, body { overflow: auto; }
+    .app { grid-template-rows: 52px 1fr; height: auto; min-height: 100vh; }
+    .header { padding: 0 12px; gap: 6px; position: sticky; top: 0; z-index: 70; }
+    .brand img.brand-logo { height: 28px; }
+    .tabs { padding: 3px; }
+    .tab { padding: 6px 10px; font-size: 12px; }
+    .sync-pill { padding: 4px 8px; font-size: 11px; }
+    .sync-pill #sync-text { display: none; }
+    .btn-ghost { padding: 6px 8px; font-size: 16px; }
+
+    .main { grid-template-columns: 1fr; overflow: visible; }
+    .content { padding: 12px; overflow: visible; }
+
+    .sidebar { position: fixed; top: 0; left: 0; right: 0; bottom: 0; max-height: 100vh; z-index: 90; border-right: none; padding: 56px 18px 24px; transform: translateY(100%); transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); overflow-y: auto; box-shadow: var(--shadow-lg); }
+    .sidebar.open { transform: translateY(0); }
+    .sidebar-close { display: flex; }
+
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+    .stat-card { padding: 10px 12px; }
+    .stat-value { font-size: 20px; }
+
+    .list-toolbar h2 { font-size: 15px; }
+    .list-toolbar-actions .btn-ghost { font-size: 12px; padding: 5px 8px; }
+
+    /* Task rows: 2 colunas, sem score bar/status pill */
+    .task-row { grid-template-columns: 18px 1fr auto auto; gap: 8px; padding: 8px 10px; }
+    .task-main { flex-direction: column; align-items: flex-start; gap: 2px; }
+    .task-title { white-space: normal; font-size: 13px; line-height: 1.3; }
+    .task-meta { font-size: 11px; gap: 6px 10px; flex-wrap: wrap; }
+    .task-row .score-bar, .task-row .status-pill { display: none; }
+    .task-actions { gap: 0; }
+    .icon-btn { width: 28px; height: 28px; font-size: 14px; }
+
+    /* Gantt: mantém o scroll horizontal */
+    .gantt-cell-label { padding: 8px 10px; font-size: 10px; }
+
+    /* Calendário: células mais compactas */
+    .calendar-grid { grid-auto-rows: minmax(64px, auto); }
+    .calendar-day { min-height: 64px; padding: 4px; }
+    .day-number { font-size: 10px; margin-bottom: 2px; }
+    .day-task { font-size: 9.5px; padding: 1px 4px; }
+    .calendar-header { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+    .calendar-header h2 { font-size: 14px; }
+    .calendar-nav .btn-secondary { padding: 5px 10px; font-size: 12px; }
+    .calendar-weekday { padding: 5px 2px; font-size: 10px; }
+
+    /* FAB visível só em mobile */
+    .fab { display: flex; }
+
+    /* Modais ocupam quase todo o ecrã */
+    .modal { width: 95vw; padding: 18px; border-radius: 14px; max-height: 90vh; }
+    .modal h2 { font-size: 16px; margin-bottom: 14px; }
+    .modal-actions { flex-direction: column-reverse; gap: 8px; }
+    .modal-actions button { width: 100%; }
+
+    /* Welcome screen */
+    .welcome-screen h1 { font-size: 22px; }
+    .welcome-screen img { height: 50px; margin-bottom: 18px; }
+    .welcome-screen p { font-size: 13px; padding: 0 12px; }
+  }
+
+  /* ============ MOBILE NARROW (<= 420px) ============ */
+  @media (max-width: 420px) {
+    .header { padding: 0 10px; }
+    .tabs { padding: 2px; gap: 2px; }
+    .tab { padding: 5px 8px; font-size: 11px; }
+    .stat-value { font-size: 18px; }
+    .stat-label { font-size: 9px; }
+  }
 </style>
 </head>
 <body>
@@ -243,7 +322,8 @@
     </div>
   </header>
   <main class="main">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
+      <button class="sidebar-close" id="sidebar-close" aria-label="Fechar">✕</button>
       <h3>Nova atividade</h3>
       <form id="task-form">
         <div class="field"><label for="t-title">Título</label><input id="t-title" class="input" type="text" required placeholder="Ex: Memória descritiva muro M3" /></div>
@@ -300,6 +380,8 @@
   </div>
 </div>
 
+<div class="scrim" id="scrim"></div>
+<button class="fab" id="fab" aria-label="Nova atividade">+</button>
 <div class="toast" id="toast"></div>
 <input type="file" id="import-file" accept="application/json" style="display:none" />
 
@@ -558,6 +640,16 @@ function init() {
   $("#task-form").addEventListener("submit", e=>{e.preventDefault(); const t=$("#t-title").value.trim(), d=$("#t-deadline").value, h=parseFloat($("#t-hours").value), n=$("#t-desc").value.trim(), a=$("#t-assignee").value.trim().toUpperCase(); if(!t||!d||!h){toast("Campos em falta","error"); return;} addTask({title:t, description:n, deadline:d, estimatedHours:h, manualPriority:state.newTaskPriority, assignee:a}); e.target.reset(); $("#t-deadline").value=isoDate(today0()); $("#t-hours").value=4; $("#t-assignee").value=""; $$("#priority-picker button").forEach(x=>x.classList.toggle("active", x.dataset.p==="3")); state.newTaskPriority=3; toast("Adicionada");});
   $("#btn-signin").addEventListener("click", signIn);
   $("#btn-settings").addEventListener("click", openSettings);
+
+  // FAB para mobile — abre sidebar como bottom sheet
+  const fab = $("#fab"), sidebar = $("#sidebar"), scrim = $("#scrim"), sbClose = $("#sidebar-close");
+  function openSidebar() { sidebar.classList.add("open"); scrim.classList.add("active"); }
+  function closeSidebar() { sidebar.classList.remove("open"); scrim.classList.remove("active"); }
+  fab.addEventListener("click", openSidebar);
+  sbClose.addEventListener("click", closeSidebar);
+  scrim.addEventListener("click", closeSidebar);
+  // Fecha sidebar quando o form é submetido em mobile
+  $("#task-form").addEventListener("submit", () => { if (window.innerWidth <= 768) closeSidebar(); });
   $("#s-close").addEventListener("click", closeSettings);
   $("#s-clear-manual").addEventListener("click", clearManualOrder);
   $("#s-export").addEventListener("click", exportData);
