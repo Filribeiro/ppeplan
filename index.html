@@ -312,14 +312,17 @@
   /* Sub-gantt combinado (controlos editáveis + cronograma na mesma linha) */
   #sub-gantt .gantt-cell-label { padding: 6px 10px; font-size: 10px; }
   #sub-gantt .gantt-date { padding: 5px 0; font-size: 10px; }
-  #sub-gantt .gantt-row.sub-row { cursor: default; }
+  #sub-gantt .gantt-row.sub-row { cursor: default; min-height: 34px; align-items: stretch; }
   #sub-gantt .gantt-row.sub-row.completed .si-title { text-decoration: line-through; color: var(--text-muted); }
   #sub-gantt .gantt-row.sub-row.completed { opacity: 0.55; }
   #sub-gantt .gantt-row.sub-row.active { background: var(--accent-soft); }
-  #sub-gantt .sub-task-name { padding: 4px 8px; gap: 4px; display: grid; grid-template-columns: 22px 18px 1fr auto auto auto; align-items: center; min-height: 30px; }
+  #sub-gantt .sub-task-name { padding: 3px 8px; gap: 4px; display: grid; grid-template-columns: 22px 18px 1fr auto auto auto; align-items: center; min-height: 34px; }
   #sub-gantt .sub-num { color: var(--text-soft); font-size: 11px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; }
-  #sub-gantt .gantt-timeline { height: 30px; }
-  #sub-gantt .gantt-bar { top: 4px; height: 22px; border-radius: 4px; cursor: pointer; overflow: visible; padding: 0 5px; display: flex; align-items: center; color: #fff; font-size: 10.5px; font-weight: 600; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 3px rgba(0,0,0,0.4); box-shadow: none; }
+  /* Timeline estica-se para a altura completa da linha (evita strips brancos por baixo) */
+  #sub-gantt .gantt-timeline { height: auto; min-height: 34px; align-self: stretch; }
+  #sub-gantt .gantt-day { height: 100%; }
+  /* Barra usa top/bottom para preencher dinamicamente a altura do timeline */
+  #sub-gantt .gantt-bar { top: 4px; bottom: 4px; height: auto; border-radius: 4px; cursor: pointer; overflow: visible; padding: 0 5px; display: flex; align-items: center; color: #fff; font-size: 10.5px; font-weight: 600; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 3px rgba(0,0,0,0.4); box-shadow: none; }
   #sub-gantt .sub-bar-label { display: none; }
 
   @media (max-width: 768px) {
