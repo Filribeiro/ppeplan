@@ -156,6 +156,11 @@
   .icon-btn { width: 24px; height: 24px; display: grid; place-items: center; background: transparent; border: none; color: var(--text-soft); border-radius: 6px; font-size: 13px; }
   .icon-btn:hover { background: var(--surface-2); color: var(--text); }
   .icon-btn.danger:hover { color: var(--danger); background: var(--danger-soft); }
+  .icon-btn.has-subtasks { color: var(--ppe-red); background: var(--ppe-red-soft); }
+  .icon-btn.has-subtasks:hover { background: var(--ppe-red); color: #fff; }
+  .subtasks-marker { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 4px; background: var(--ppe-red-soft); color: var(--ppe-red-dark); font-size: 11px; font-weight: 700; margin-left: 6px; cursor: pointer; vertical-align: middle; }
+  .subtasks-marker:hover { background: var(--ppe-red); color: #fff; }
+  .day-task .subtasks-marker { width: 14px; height: 14px; font-size: 9px; margin-left: 4px; padding: 0 2px; background: rgba(255,255,255,0.3); color: #fff; }
 
   .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
   .empty-state h3 { font-size: 16px; margin: 0 0 6px; color: var(--text); }
@@ -304,11 +309,13 @@
   .dep-popover label:hover { background: var(--surface-warm); }
   .dep-popover input { accent-color: var(--accent); }
 
-  /* Sub-gantt no modal */
-  #sub-gantt .mini-gantt { background: var(--surface-warm); border-radius: 8px; padding: 10px; }
-  #sub-gantt .mg-row { grid-template-columns: 180px 1fr; }
-  #sub-gantt .mg-track { height: 24px; }
-  #sub-gantt .mg-bar { font-size: 10px; }
+  /* Sub-gantt compacto (reusa .gantt-* mas com linhas mais finas) */
+  #sub-gantt .gantt-cell-label { padding: 6px 10px; font-size: 10px; }
+  #sub-gantt .gantt-date { padding: 5px 0; font-size: 10px; }
+  #sub-gantt .gantt-task-name { padding: 6px 10px; gap: 6px; }
+  #sub-gantt .gantt-task-name .title { font-size: 12px; }
+  #sub-gantt .gantt-timeline { height: 28px; }
+  #sub-gantt .gantt-bar { top: 4px; height: 20px; font-size: 9.5px; padding: 0 5px; border-radius: 4px; }
 
   @media (max-width: 768px) {
     .subtasks-modal-content { width: 96vw; max-height: 96vh; padding: 12px; }
@@ -819,7 +826,7 @@ function renderList() {
     const subDone = subs.filter(s => s.status==="completed").length;
     const subBadge = subs.length > 0 ? `<span class="subtask-progress ${subDone===subs.length?'complete':''}" title="${subDone}/${subs.length} subtarefas concluídas">${subDone}/${subs.length}${subDone===subs.length?' ✓':''}</span>` : '';
     const attBadge = (t.attachments && t.attachments.length) ? `<span class="subtask-progress" title="${t.attachments.length} imagens anexadas">📎${t.attachments.length}</span>` : '';
-    return `<div class="task-row ${t.status==='completed'?'completed':''} ${t.assignee?'delegated':''}" draggable="true" data-id="${t.id}"><div class="task-handle">${pin?'📌':'⋮⋮'}</div><div class="task-main"><div class="task-title">${tag}<span ${tst}>${escapeHtml(t.title)}</span>${subBadge}${attBadge}</div><div class="task-meta"><span class="chip">📅 ${fmtDate(t.deadline)}</span><span class="chip">⏱ ${t.estimatedHours}h</span><span class="chip">${dl<0?`<b style="color:var(--danger)">${-dl}d atrasado</b>`:`${dl}d restantes`}</span>${t.scheduledEnd?`<span class="chip">Termina: ${fmtDate(t.scheduledEnd)}</span>`:""}</div></div><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span>${sp}<div class="score-bar"><div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%"></div></div></div><div class="task-actions"><button class="icon-btn" data-act="complete" title="${t.status==='completed'?'Marcar pendente':'Concluir'}">${t.status==='completed'?'↺':'✓'}</button><button class="icon-btn" data-act="subtasks" title="Subtarefas">⊟</button><button class="icon-btn" data-act="edit" title="Editar">✎</button><button class="icon-btn danger" data-act="delete" title="Eliminar">✕</button></div></div>`;
+    return `<div class="task-row ${t.status==='completed'?'completed':''} ${t.assignee?'delegated':''}" draggable="true" data-id="${t.id}"><div class="task-handle">${pin?'📌':'⋮⋮'}</div><div class="task-main"><div class="task-title">${tag}<span ${tst}>${escapeHtml(t.title)}</span>${subBadge}${attBadge}</div><div class="task-meta"><span class="chip">📅 ${fmtDate(t.deadline)}</span><span class="chip">⏱ ${t.estimatedHours}h</span><span class="chip">${dl<0?`<b style="color:var(--danger)">${-dl}d atrasado</b>`:`${dl}d restantes`}</span>${t.scheduledEnd?`<span class="chip">Termina: ${fmtDate(t.scheduledEnd)}</span>`:""}</div></div><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span>${sp}<div class="score-bar"><div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%"></div></div></div><div class="task-actions"><button class="icon-btn" data-act="complete" title="${t.status==='completed'?'Marcar pendente':'Concluir'}">${t.status==='completed'?'↺':'✓'}</button><button class="icon-btn ${subs.length>0?'has-subtasks':''}" data-act="subtasks" title="${subs.length>0?subs.length+' subtarefas':'Subtarefas'}">⊟</button><button class="icon-btn" data-act="edit" title="Editar">✎</button><button class="icon-btn danger" data-act="delete" title="Eliminar">✕</button></div></div>`;
   }).join("");
   return renderStats()+`<div class="list-toolbar"><h2>Atividades</h2><div class="list-toolbar-actions"><button class="btn-ghost" id="btn-clear-manual">Limpar ordem manual</button></div></div><div class="task-list">${rows}</div>`;
 }
@@ -842,7 +849,9 @@ function renderGantt() {
     const l=so*dw; const w=du*dw-2; const dlo=(dayDiff(new Date(t.deadline),minDate)+1)*dw-1;
     let dcs=""; for(let i=0;i<totalDays;i++){const d=addDays(minDate,i); const it=isoDate(d)===isoDate(today); const we=d.getDay()===0||d.getDay()===6; dcs+=`<div class="gantt-day ${it?'today':''} ${we?'weekend':''}"></div>`;}
     const ac=assigneeColor(t.assignee);
-    return `<div class="gantt-row" data-id="${t.id}"><div class="gantt-task-name"><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span><span class="title" title="${escapeHtml(t.title)}">${escapeHtml(t.title)}</span></div><div class="gantt-timeline" style="grid-template-columns: repeat(${totalDays}, ${dw}px); width: ${tw}px">${dcs}<div class="gantt-bar ${t.riskLevel}" style="left:${l}px;width:${w}px${ac?';background:'+ac.solid:''}">${t.estimatedHours}h${t.assignee?`<span class="assignee-mini">${escapeHtml(t.assignee)}</span>`:''}</div><div class="gantt-deadline" style="left:${dlo}px"></div></div></div>`;
+    const sm = (t.subtasks||[]).length;
+    const subMarker = sm > 0 ? `<span class="subtasks-marker" data-act="subtasks" data-id="${t.id}" title="${sm} subtarefas">⊟</span>` : '';
+    return `<div class="gantt-row" data-id="${t.id}"><div class="gantt-task-name"><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span><span class="title" title="${escapeHtml(t.title)}">${escapeHtml(t.title)}</span>${subMarker}</div><div class="gantt-timeline" style="grid-template-columns: repeat(${totalDays}, ${dw}px); width: ${tw}px">${dcs}<div class="gantt-bar ${t.riskLevel}" style="left:${l}px;width:${w}px${ac?';background:'+ac.solid:''}">${t.estimatedHours}h${t.assignee?`<span class="assignee-mini">${escapeHtml(t.assignee)}</span>`:''}</div><div class="gantt-deadline" style="left:${dlo}px"></div></div></div>`;
   }).join("");
   // Mobile alternative: vertical cards with mini progress bar in 4-week window
   const WINDOW = 28;
@@ -891,7 +900,7 @@ function renderCalendar() {
   for(let i=0;i<td;i++){
     const d=addDays(sd,i); const it=isoDate(d)===isoDate(today); const we=d.getDay()===0||d.getDay()===6;
     const items=bd[isoDate(d)]||[]; const v=items.slice(0,4); const m=items.length-v.length;
-    const ih=v.map(x=>{const ac=assigneeColor(x.task.assignee); if(x.type==="deadline"){const s=ac?`cursor:pointer;border-color:${ac.solid};color:${ac.solid}`:'cursor:pointer'; return `<div class="day-task deadline" data-id="${x.task.id}" style="${s}">⚑ ${x.task.assignee?`[${escapeHtml(x.task.assignee)}] `:''}${escapeHtml(x.task.title)}</div>`;} const s=ac?`cursor:pointer;background:${ac.solid}`:'cursor:pointer'; return `<div class="day-task ${x.task.riskLevel}" data-id="${x.task.id}" style="${s}">${x.task.assignee?`[${escapeHtml(x.task.assignee)}] `:''}${escapeHtml(x.task.title)} · ${x.hours}h</div>`;}).join("");
+    const ih=v.map(x=>{const ac=assigneeColor(x.task.assignee); const sm=(x.task.subtasks||[]).length; const subM=sm>0?`<span class="subtasks-marker" data-act="subtasks" data-id="${x.task.id}" title="${sm} subtarefas">⊟</span>`:''; if(x.type==="deadline"){const s=ac?`cursor:pointer;border-color:${ac.solid};color:${ac.solid}`:'cursor:pointer'; return `<div class="day-task deadline" data-id="${x.task.id}" style="${s}">⚑ ${x.task.assignee?`[${escapeHtml(x.task.assignee)}] `:''}${escapeHtml(x.task.title)}${subM}</div>`;} const s=ac?`cursor:pointer;background:${ac.solid}`:'cursor:pointer'; return `<div class="day-task ${x.task.riskLevel}" data-id="${x.task.id}" style="${s}">${x.task.assignee?`[${escapeHtml(x.task.assignee)}] `:''}${escapeHtml(x.task.title)} · ${x.hours}h${subM}</div>`;}).join("");
     const ms=(d.getDate()===1||i===0)?` ${d.toLocaleDateString("pt-PT",{month:"short"})}`:"";
     cells+=`<div class="calendar-day ${it?'today':''} ${we?'weekend':''}"><div class="day-number">${d.getDate()}${ms}</div>${ih}${m>0?`<div class="day-more">+${m} mais</div>`:""}</div>`;
   }
@@ -916,7 +925,11 @@ function bindViewEvents() {
     row.addEventListener("drop", e => { e.preventDefault(); const di=e.dataTransfer.getData("text/plain"); if(di && di!==id){const r=row.getBoundingClientRect(); reorderTask(di, id, (e.clientY-r.top)<r.height/2?"before":"after");}});
   });
   const bc=$("#btn-clear-manual"); if(bc) bc.addEventListener("click", clearManualOrder);
-  const ce=$("#content"); if(ce) ce.addEventListener("dblclick", e => { if(e.target.closest("[data-act]")) return; const el=e.target.closest("[data-id]"); if(el && el.dataset.id && state.tasks.find(t=>t.id===el.dataset.id)) openEditModal(el.dataset.id); });
+  const ce=$("#content"); if(ce) {
+    ce.addEventListener("dblclick", e => { if(e.target.closest("[data-act]")) return; const el=e.target.closest("[data-id]"); if(el && el.dataset.id && state.tasks.find(t=>t.id===el.dataset.id)) openEditModal(el.dataset.id); });
+    // Click direto no marcador ⊟ (Gantt / Calendário) abre vista de subtarefas
+    ce.addEventListener("click", e => { const m = e.target.closest(".subtasks-marker[data-act='subtasks']"); if (m && m.dataset.id) { e.stopPropagation(); openSubtasksView(m.dataset.id); } });
+  }
   const p=$("#cal-prev"), n=$("#cal-next"), t=$("#cal-today");
   if(p) p.addEventListener("click", ()=>{state.calendarWeekStart=isoDate(addDays(new Date(state.calendarWeekStart),-7)); render();});
   if(n) n.addEventListener("click", ()=>{state.calendarWeekStart=isoDate(addDays(new Date(state.calendarWeekStart),7)); render();});
@@ -1100,53 +1113,71 @@ function renderSubDetail() {
     el.querySelector(".att-remove").onclick = (e) => { e.stopPropagation(); atts.splice(i, 1); renderSubDetail(); renderSubTable(); };
   });
 }
-// Agenda subtarefas: paralelo por delegado, sequencial mesmo delegado, respeita dependências
+// Agenda subtarefas com precisão de HORA dentro do dia.
+// - Paralelo por delegado (cada um tem 8h/dia próprias)
+// - Sequencial mesmo delegado: nova tarefa começa onde a anterior acabou (mesma hora, mesmo dia se possível)
+// - Dependências: tarefa só arranca depois do scheduledEndHour da dependência (mesmo dia se houver tempo)
 function computeSubSchedule(subtasks, parentStartDate, settings) {
-  subtasks.forEach(s => { s.scheduledStart = null; s.scheduledEnd = null; });
-  // Ordem topológica: dependências antes dos dependentes
-  const remaining = subtasks.slice();
-  const ordered = [];
-  let safety = 0;
+  const hpd = settings.dailyHours;
+  subtasks.forEach(s => {
+    s.scheduledStart = null; s.scheduledStartHour = null;
+    s.scheduledEnd = null; s.scheduledEndHour = null;
+  });
+  // Ordem topológica
+  const remaining = subtasks.slice(); const ordered = []; let safety = 0;
   while (remaining.length > 0 && safety < 200) {
     safety++;
     for (let i = remaining.length - 1; i >= 0; i--) {
-      const s = remaining[i];
-      const deps = s.dependsOn || [];
+      const s = remaining[i]; const deps = s.dependsOn || [];
       const allReady = deps.every(did => ordered.find(o => o.id === did) || !subtasks.find(x => x.id === did));
       if (allReady) { ordered.push(s); remaining.splice(i, 1); }
     }
   }
-  if (remaining.length > 0) ordered.push(...remaining); // ciclos: aceita restante
+  if (remaining.length > 0) ordered.push(...remaining);
 
+  // usage[assignee][dateKey] = horas já usadas nesse dia (0..hpd)
   const usage = {};
   for (const s of ordered) {
     if (s.status === "completed") continue;
     const assignee = s.assignee || "me";
     if (!usage[assignee]) usage[assignee] = {};
     const dayUsage = usage[assignee];
-    // Earliest start: max(parentStart, max(dep.scheduledEnd + 1))
-    let startDay = new Date(parentStartDate); startDay.setHours(0,0,0,0);
+
+    // Earliest: maior entre parentStart e fim das dependências
+    let startDate = new Date(parentStartDate); startDate.setHours(0,0,0,0);
+    let startHour = 0;
     for (const did of (s.dependsOn || [])) {
       const dep = subtasks.find(x => x.id === did);
       if (dep && dep.scheduledEnd) {
-        const after = addDays(new Date(dep.scheduledEnd), 1);
-        if (after > startDay) startDay = after;
+        let dEnd = new Date(dep.scheduledEnd); dEnd.setHours(0,0,0,0);
+        let dHour = dep.scheduledEndHour != null ? dep.scheduledEndHour : hpd;
+        if (dHour >= hpd) { dEnd = addDays(dEnd, 1); dHour = 0; }
+        if (dEnd > startDate || (dEnd.getTime() === startDate.getTime() && dHour > startHour)) {
+          startDate = new Date(dEnd); startHour = dHour;
+        }
       }
     }
+    // Salta dias não-úteis
+    while (!isWorkingDay(startDate, settings)) { startDate = addDays(startDate, 1); startHour = 0; }
+
     let rem = parseFloat(s.estimatedHours) || 0; if (rem <= 0) continue;
-    let d = new Date(startDay); let sf = 0;
-    while (rem > 0 && sf < 365) {
+    let d = new Date(startDate); let hOff = startHour; let sf = 0;
+    while (rem > 0 && sf < 730) {
       if (isWorkingDay(d, settings)) {
-        const key = isoDate(d); const used = dayUsage[key] || 0; const avail = settings.dailyHours - used;
+        const key = isoDate(d);
+        const used = dayUsage[key] || 0;
+        // Hora efetiva de início = max(hOff, used)
+        const effStart = Math.max(hOff, used);
+        const avail = hpd - effStart;
         if (avail > 0) {
           const alloc = Math.min(rem, avail);
-          dayUsage[key] = used + alloc;
-          if (!s.scheduledStart) s.scheduledStart = key;
-          s.scheduledEnd = key;
+          if (s.scheduledStart == null) { s.scheduledStart = key; s.scheduledStartHour = effStart; }
+          s.scheduledEnd = key; s.scheduledEndHour = effStart + alloc;
+          dayUsage[key] = effStart + alloc;
           rem -= alloc;
         }
       }
-      d = addDays(d, 1); sf++;
+      d = addDays(d, 1); hOff = 0; sf++;
     }
   }
 }
@@ -1188,10 +1219,15 @@ function renderSubGantt() {
       for (let i = 0; i < totalDays; i++) { const d = addDays(minDate, i); const isW = d.getDay()===0||d.getDay()===6; dayCells += `<div class="gantt-day ${isW?'weekend':''}"></div>`; }
       return `<div class="gantt-row"><div class="gantt-task-name"><span style="color:var(--text-soft);font-size:10.5px;margin-right:4px">#${idx+1}</span><span class="title" title="${escapeHtml(s.title)}">${escapeHtml(s.title||"—")}</span></div><div class="gantt-timeline" style="grid-template-columns: repeat(${totalDays}, ${dayWidth}px); width: ${totalWidth}px">${dayCells}</div></div>`;
     }
-    const start = new Date(s.scheduledStart); const end = new Date(s.scheduledEnd);
-    const startOffset = dayDiff(start, minDate);
-    const duration = Math.max(1, dayDiff(end, start) + 1);
-    const left = startOffset * dayWidth; const width = duration * dayWidth - 2;
+    const hpd = state.settings.dailyHours;
+    const pxPerHour = dayWidth / hpd;
+    const startDayOffset = dayDiff(new Date(s.scheduledStart), minDate);
+    const endDayOffset = dayDiff(new Date(s.scheduledEnd), minDate);
+    const startHour = s.scheduledStartHour != null ? s.scheduledStartHour : 0;
+    const endHour = s.scheduledEndHour != null ? s.scheduledEndHour : hpd;
+    const left = startDayOffset * dayWidth + startHour * pxPerHour;
+    const endPx = endDayOffset * dayWidth + endHour * pxPerHour;
+    const width = Math.max(4, endPx - left - 1);
     let dayCells = "";
     for (let i = 0; i < totalDays; i++) {
       const d = addDays(minDate, i);

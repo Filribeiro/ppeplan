@@ -2,7 +2,7 @@
 // Cacheia o app shell (HTML, manifest, ícones) para funcionar offline.
 // Não cacheia chamadas à API do Google — essas precisam sempre de rede.
 
-const CACHE_NAME = "ppeplan-v17-deps-paste";
+const CACHE_NAME = "ppeplan-v18-hour-chaining";
 const APP_SHELL = [
   "./",
   "./index.html",
