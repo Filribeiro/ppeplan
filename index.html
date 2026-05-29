@@ -319,8 +319,8 @@
   #sub-gantt .sub-task-name { padding: 4px 8px; gap: 4px; display: grid; grid-template-columns: 22px 18px 1fr auto auto auto; align-items: center; min-height: 30px; }
   #sub-gantt .sub-num { color: var(--text-soft); font-size: 11px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; }
   #sub-gantt .gantt-timeline { height: 30px; }
-  #sub-gantt .gantt-bar { top: 4px; height: 22px; font-size: 0; padding: 0; border-radius: 4px; cursor: pointer; }
-  #sub-gantt .sub-bar-label { position: absolute; top: 7px; font-size: 10.5px; font-weight: 600; color: var(--text); white-space: nowrap; pointer-events: none; padding: 0 4px; line-height: 18px; }
+  #sub-gantt .gantt-bar { top: 4px; height: 22px; border-radius: 4px; cursor: pointer; overflow: visible; padding: 0 5px; display: flex; align-items: center; color: #fff; font-size: 10.5px; font-weight: 600; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 3px rgba(0,0,0,0.4); box-shadow: none; }
+  #sub-gantt .sub-bar-label { display: none; }
 
   @media (max-width: 768px) {
     #sub-gantt .sub-task-name { grid-template-columns: 20px 16px 1fr auto auto; gap: 3px; padding: 3px 6px; }
@@ -1262,7 +1262,8 @@ function renderSubGantt() {
       const width = Math.max(4, endPx - left - 1);
       const bg = s.status==="completed" ? "var(--text-soft)" : (ac ? ac.solid : "var(--accent)");
       const labelTxt = `${s.estimatedHours}h${s.assignee?' · '+escapeHtml(s.assignee):''}`;
-      barHtml = `<div class="gantt-bar" data-sid="${s.id}" style="left:${left}px;width:${width}px;background:${bg}"></div><div class="sub-bar-label" style="left:${left+width+4}px">${labelTxt}</div>`;
+      // Label dentro da barra — overflow:visible permite ler quando a barra é pequena, text-shadow garante legibilidade sobre qualquer fundo
+      barHtml = `<div class="gantt-bar" data-sid="${s.id}" style="left:${left}px;width:${width}px;background:${bg}">${labelTxt}</div>`;
     }
 
     return `<div class="gantt-row sub-row ${s.status==='completed'?'completed':''} ${isActive?'active':''}" data-sid="${s.id}">
