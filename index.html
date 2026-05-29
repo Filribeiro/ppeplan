@@ -229,6 +229,64 @@
   .welcome-screen h1 { margin: 0 0 8px; font-size: 24px; font-weight: 700; }
   .welcome-screen p { margin: 0 0 32px; color: var(--text-muted); max-width: 400px; line-height: 1.5; }
 
+  /* ===== Subtarefas + Anexos ===== */
+  .subtask-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+  .subtask-row { background: var(--surface-warm); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+  .subtask-row.completed { opacity: 0.6; }
+  .subtask-row.completed .st-title input { text-decoration: line-through; }
+  .subtask-head { display: grid; grid-template-columns: auto 1fr auto auto auto auto; gap: 6px; align-items: center; }
+  .subtask-head input.st-title { background: transparent; border: none; padding: 4px 2px; font-size: 13px; font-weight: 500; min-width: 0; outline: none; }
+  .subtask-head input.st-title:focus { background: var(--surface); border-radius: 4px; }
+  .subtask-head input.st-hours { width: 50px; padding: 4px 6px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); text-align: center; }
+  .subtask-head input.st-assignee { width: 56px; padding: 4px 6px; font-size: 11px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); text-align: center; text-transform: uppercase; }
+  .subtask-head .st-check { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
+  .subtask-head .st-toggle, .subtask-head .st-delete { width: 26px; height: 26px; padding: 0; display: grid; place-items: center; background: transparent; border: none; color: var(--text-soft); border-radius: 5px; cursor: pointer; font-size: 14px; }
+  .subtask-head .st-toggle:hover { background: var(--surface); color: var(--text); }
+  .subtask-head .st-delete:hover { background: var(--danger-soft); color: var(--danger); }
+  .subtask-body { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); display: none; }
+  .subtask-row.expanded .subtask-body { display: block; }
+  .subtask-body .st-notes { width: 100%; min-height: 50px; padding: 6px 8px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); resize: vertical; font-family: inherit; }
+
+  .attachments-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px; margin-top: 6px; }
+  .attachment-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; background: var(--surface-warm); }
+  .attachment-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .attachment-thumb .att-remove { position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff; border: none; cursor: pointer; font-size: 12px; display: grid; place-items: center; }
+  .attachment-thumb .att-remove:hover { background: var(--danger); }
+
+  .add-attachment-btn { padding: 6px 12px; background: var(--surface); border: 1px dashed var(--border-strong); color: var(--text-muted); border-radius: 8px; font-size: 12px; cursor: pointer; margin-top: 6px; }
+  .add-attachment-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+
+  .add-subtask-btn { padding: 8px 14px; background: var(--surface); border: 1px dashed var(--border-strong); color: var(--text-muted); border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; width: 100%; }
+  .add-subtask-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); border-style: solid; }
+
+  .subtask-progress { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: var(--radius-pill); background: var(--surface-warm); color: var(--text-muted); font-size: 10.5px; font-weight: 600; margin-left: 6px; }
+  .subtask-progress.complete { background: var(--success-soft); color: var(--success); }
+
+  /* Mini Gantt (subtarefas dentro do modal) */
+  .mini-gantt { background: var(--surface-warm); border-radius: 8px; padding: 10px; margin-top: 8px; }
+  .mg-header { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; padding: 0 110px 0 0; }
+  .mg-row { display: grid; grid-template-columns: 100px 1fr; gap: 8px; align-items: center; margin-bottom: 4px; }
+  .mg-name { font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mg-track { position: relative; height: 20px; background: var(--surface); border-radius: 4px; border: 1px solid var(--border); }
+  .mg-bar { position: absolute; top: 2px; bottom: 2px; min-width: 6px; border-radius: 3px; color: #fff; font-size: 9.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 3px; overflow: hidden; }
+
+  /* Image viewer */
+  .image-viewer { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 300; padding: 20px; }
+  .image-viewer.active { display: flex; }
+  .image-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
+  .image-viewer .iv-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.18); color: #fff; border: none; cursor: pointer; font-size: 20px; display: grid; place-items: center; }
+  .image-viewer .iv-close:hover { background: rgba(255,255,255,0.32); }
+
+  @media (max-width: 768px) {
+    .subtask-head { grid-template-columns: auto 1fr auto auto auto; }
+    .subtask-head input.st-assignee { width: 44px; }
+    .subtask-head input.st-hours { width: 42px; }
+    .attachments-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+    .mini-gantt { padding: 8px; }
+    .mg-row { grid-template-columns: 72px 1fr; gap: 6px; }
+    .mg-name { font-size: 10px; }
+  }
+
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 5px; }
@@ -411,14 +469,37 @@
     <div class="field"><label>Delegar a (opcional)</label><input id="e-assignee" class="input" type="text" maxlength="8" autocomplete="off" /></div>
     <div class="field"><label>Prioridade manual</label><div class="priority-picker" id="e-priority-picker"><button type="button" data-p="1">1</button><button type="button" data-p="2">2</button><button type="button" data-p="3">3</button><button type="button" data-p="4">4</button><button type="button" data-p="5">5</button></div></div>
     <div class="field"><label>Estado</label><select id="e-status" class="select"><option value="pending">Pendente</option><option value="in_progress">Em curso</option><option value="completed">Concluída</option></select></div>
+
+    <div class="field">
+      <label>Anexos (imagens)</label>
+      <div class="attachments-grid" id="e-attachments"></div>
+      <button type="button" class="add-attachment-btn" id="e-add-attachment">📎 Adicionar imagem</button>
+    </div>
+
+    <div class="field">
+      <label>Subtarefas <span style="font-weight:400;color:var(--text-soft);font-size:11px" id="e-subtasks-hint"></span></label>
+      <div class="subtask-list" id="e-subtasks"></div>
+      <button type="button" class="add-subtask-btn" id="e-add-subtask">+ Adicionar subtarefa</button>
+    </div>
+
+    <div class="field" id="e-minigantt-wrapper" style="display:none">
+      <label>Cronograma das subtarefas</label>
+      <div id="e-minigantt"></div>
+    </div>
+
     <div class="modal-actions"><button class="btn-secondary" id="e-cancel">Cancelar</button><button class="btn-primary" id="e-save" style="width:auto;padding:10px 18px">Guardar</button></div>
   </div>
 </div>
 
 <div class="scrim" id="scrim"></div>
 <button class="fab" id="fab" aria-label="Nova atividade">+</button>
+<div class="image-viewer" id="image-viewer">
+  <img id="image-viewer-img" alt="" />
+  <button class="iv-close" id="image-viewer-close" aria-label="Fechar">✕</button>
+</div>
 <div class="toast" id="toast"></div>
 <input type="file" id="import-file" accept="application/json" style="display:none" />
+<input type="file" id="attachment-file" accept="image/*" style="display:none" />
 
 <script>
 const STORAGE_KEY = "ppeplan-v2";
@@ -627,7 +708,11 @@ function renderList() {
     else if(t.riskLevel==="tight") sp=`<span class="status-pill status-tight">Apertado</span>`;
     else sp=`<span class="status-pill status-ok">No prazo</span>`;
     const ac=assigneeColor(t.assignee); const tag=t.assignee&&ac?`<span class="assignee-tag" style="background:${ac.bg};color:${ac.text}">${escapeHtml(t.assignee)}</span>`:''; const tst=ac?`style="color:${ac.text}"`:'';
-    return `<div class="task-row ${t.status==='completed'?'completed':''} ${t.assignee?'delegated':''}" draggable="true" data-id="${t.id}"><div class="task-handle">${pin?'📌':'⋮⋮'}</div><div class="task-main"><div class="task-title">${tag}<span ${tst}>${escapeHtml(t.title)}</span></div><div class="task-meta"><span class="chip">📅 ${fmtDate(t.deadline)}</span><span class="chip">⏱ ${t.estimatedHours}h</span><span class="chip">${dl<0?`<b style="color:var(--danger)">${-dl}d atrasado</b>`:`${dl}d restantes`}</span>${t.scheduledEnd?`<span class="chip">Termina: ${fmtDate(t.scheduledEnd)}</span>`:""}</div></div><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span>${sp}<div class="score-bar"><div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%"></div></div></div><div class="task-actions"><button class="icon-btn" data-act="complete">${t.status==='completed'?'↺':'✓'}</button><button class="icon-btn" data-act="edit">✎</button><button class="icon-btn danger" data-act="delete">✕</button></div></div>`;
+    const subs = t.subtasks || [];
+    const subDone = subs.filter(s => s.status==="completed").length;
+    const subBadge = subs.length > 0 ? `<span class="subtask-progress ${subDone===subs.length?'complete':''}" title="${subDone}/${subs.length} subtarefas concluídas">${subDone}/${subs.length}${subDone===subs.length?' ✓':''}</span>` : '';
+    const attBadge = (t.attachments && t.attachments.length) ? `<span class="subtask-progress" title="${t.attachments.length} imagens anexadas">📎${t.attachments.length}</span>` : '';
+    return `<div class="task-row ${t.status==='completed'?'completed':''} ${t.assignee?'delegated':''}" draggable="true" data-id="${t.id}"><div class="task-handle">${pin?'📌':'⋮⋮'}</div><div class="task-main"><div class="task-title">${tag}<span ${tst}>${escapeHtml(t.title)}</span>${subBadge}${attBadge}</div><div class="task-meta"><span class="chip">📅 ${fmtDate(t.deadline)}</span><span class="chip">⏱ ${t.estimatedHours}h</span><span class="chip">${dl<0?`<b style="color:var(--danger)">${-dl}d atrasado</b>`:`${dl}d restantes`}</span>${t.scheduledEnd?`<span class="chip">Termina: ${fmtDate(t.scheduledEnd)}</span>`:""}</div></div><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span>${sp}<div class="score-bar"><div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%"></div></div></div><div class="task-actions"><button class="icon-btn" data-act="complete">${t.status==='completed'?'↺':'✓'}</button><button class="icon-btn" data-act="edit">✎</button><button class="icon-btn danger" data-act="delete">✕</button></div></div>`;
   }).join("");
   return renderStats()+`<div class="list-toolbar"><h2>Atividades</h2><div class="list-toolbar-actions"><button class="btn-ghost" id="btn-clear-manual">Limpar ordem manual</button></div></div><div class="task-list">${rows}</div>`;
 }
@@ -729,9 +814,142 @@ function bindViewEvents() {
   if(t) t.addEventListener("click", ()=>{state.calendarWeekStart=isoDate(getMondayOf(today0())); render();});
 }
 
-function openEditModal(id) { const t=state.tasks.find(x=>x.id===id); if(!t) return; state.editingId=id; state.editTaskPriority=t.manualPriority; $("#e-title").value=t.title; $("#e-desc").value=t.description||""; $("#e-deadline").value=t.deadline; $("#e-hours").value=t.estimatedHours; $("#e-assignee").value=t.assignee||""; $("#e-status").value=t.status; $$("#e-priority-picker button").forEach(b=>b.classList.toggle("active", parseInt(b.dataset.p)===t.manualPriority)); $("#edit-modal").classList.add("active"); }
+function openEditModal(id) {
+  const t = state.tasks.find(x=>x.id===id); if(!t) return;
+  state.editingId=id; state.editTaskPriority=t.manualPriority;
+  $("#e-title").value=t.title; $("#e-desc").value=t.description||""; $("#e-deadline").value=t.deadline; $("#e-hours").value=t.estimatedHours; $("#e-assignee").value=t.assignee||""; $("#e-status").value=t.status;
+  $$("#e-priority-picker button").forEach(b=>b.classList.toggle("active", parseInt(b.dataset.p)===t.manualPriority));
+  // Clona attachments e subtasks para o estado de edição
+  state.editAttachments = JSON.parse(JSON.stringify(t.attachments || []));
+  state.editSubtasks = JSON.parse(JSON.stringify(t.subtasks || []));
+  state.attachTarget = "task";
+  renderAttachmentsGrid(); renderSubtaskList();
+  $("#edit-modal").classList.add("active");
+}
 function closeEditModal() { $("#edit-modal").classList.remove("active"); state.editingId=null; }
-function saveEditModal() { if(!state.editingId) return; const p={title:$("#e-title").value.trim(), description:$("#e-desc").value.trim(), deadline:$("#e-deadline").value, estimatedHours:parseFloat($("#e-hours").value), assignee:($("#e-assignee").value.trim().toUpperCase()||null), manualPriority:state.editTaskPriority, status:$("#e-status").value}; if(!p.title||!p.deadline||!p.estimatedHours){toast("Campos em falta", "error"); return;} updateTask(state.editingId, p); closeEditModal(); }
+function saveEditModal() {
+  if(!state.editingId) return;
+  const p = {
+    title: $("#e-title").value.trim(), description: $("#e-desc").value.trim(),
+    deadline: $("#e-deadline").value, estimatedHours: parseFloat($("#e-hours").value),
+    assignee: ($("#e-assignee").value.trim().toUpperCase()||null),
+    manualPriority: state.editTaskPriority, status: $("#e-status").value,
+    attachments: state.editAttachments.slice(),
+    subtasks: state.editSubtasks.filter(s => s.title.trim() !== "")
+  };
+  if(!p.title||!p.deadline||!p.estimatedHours){toast("Campos em falta", "error"); return;}
+  updateTask(state.editingId, p); closeEditModal();
+}
+// ====== Subtarefas + Anexos ======
+state.editSubtasks = [];
+state.editAttachments = [];
+state.attachTarget = "task";
+
+function compressImage(file, maxWidth = 1400, maxKB = 600) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width);
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        let q = 0.85, d = c.toDataURL("image/jpeg", q);
+        while (d.length * 0.75 > maxKB * 1024 && q > 0.35) { q -= 0.1; d = c.toDataURL("image/jpeg", q); }
+        resolve(d);
+      };
+      img.onerror = () => reject(new Error("Imagem inválida"));
+      img.src = reader.result;
+    };
+    reader.onerror = () => reject(new Error("Falhou a ler ficheiro"));
+    reader.readAsDataURL(file);
+  });
+}
+async function handleAttachmentFile(file) {
+  if (!file.type.startsWith("image/")) { toast("Só imagens", "error"); return; }
+  try {
+    const dataUrl = await compressImage(file);
+    const att = { data: dataUrl, caption: "", addedAt: new Date().toISOString() };
+    if (state.attachTarget === "task") { state.editAttachments.push(att); renderAttachmentsGrid(); }
+    else if (state.attachTarget.startsWith("subtask:")) {
+      const sid = state.attachTarget.split(":")[1];
+      const st = state.editSubtasks.find(s => s.id === sid);
+      if (st) { st.attachments = st.attachments || []; st.attachments.push(att); renderSubtaskList(); }
+    }
+    toast("Imagem adicionada");
+  } catch (e) { toast("Erro: " + e.message, "error"); }
+}
+function openImageViewer(dataUrl) { $("#image-viewer-img").src = dataUrl; $("#image-viewer").classList.add("active"); }
+function closeImageViewer() { $("#image-viewer").classList.remove("active"); $("#image-viewer-img").src = ""; }
+function renderAttachmentsGrid() {
+  const wrap = $("#e-attachments");
+  if (!state.editAttachments || state.editAttachments.length === 0) { wrap.innerHTML = ""; return; }
+  wrap.innerHTML = state.editAttachments.map((a, i) => `<div class="attachment-thumb" data-i="${i}"><img src="${a.data}" alt="" /><button class="att-remove" data-remove="${i}">✕</button></div>`).join("");
+  wrap.querySelectorAll(".attachment-thumb").forEach(el => {
+    const i = parseInt(el.dataset.i, 10);
+    el.querySelector("img").addEventListener("click", () => openImageViewer(state.editAttachments[i].data));
+    el.querySelector(".att-remove").addEventListener("click", (e) => { e.stopPropagation(); state.editAttachments.splice(i, 1); renderAttachmentsGrid(); });
+  });
+}
+function newSubtask() { return { id: uid(), title: "", description: "", estimatedHours: 1, assignee: null, status: "pending", createdAt: new Date().toISOString(), completedAt: null, attachments: [] }; }
+function formatSubtaskHint() { const l = state.editSubtasks || []; if (!l.length) return ""; const d = l.filter(s=>s.status==="completed").length; const h = l.reduce((s,x)=>s+(parseFloat(x.estimatedHours)||0),0); return `· ${d}/${l.length} concluídas · ${h.toFixed(1)}h total`; }
+function renderSubtaskList() {
+  const wrap = $("#e-subtasks"); const hint = $("#e-subtasks-hint");
+  const list = state.editSubtasks || [];
+  hint.textContent = formatSubtaskHint();
+  if (list.length === 0) { wrap.innerHTML = ""; renderMiniGantt(); return; }
+  wrap.innerHTML = list.map(st => {
+    const ac = assigneeColor(st.assignee);
+    const attHtml = (st.attachments || []).map((a, ai) => `<div class="attachment-thumb" data-sid="${st.id}" data-ai="${ai}"><img src="${a.data}" alt="" /><button class="att-remove" data-rm-sid="${st.id}" data-rm-ai="${ai}">✕</button></div>`).join("");
+    return `<div class="subtask-row ${st.status==='completed'?'completed':''}" data-sid="${st.id}">
+      <div class="subtask-head">
+        <input type="checkbox" class="st-check" data-sid="${st.id}" ${st.status==='completed'?'checked':''} />
+        <input type="text" class="st-title" data-sid="${st.id}" value="${escapeHtml(st.title)}" placeholder="Subtarefa..." />
+        <input type="number" class="st-hours" data-sid="${st.id}" value="${st.estimatedHours}" min="0.25" step="0.25" title="Horas" />
+        <input type="text" class="st-assignee" data-sid="${st.id}" value="${escapeHtml(st.assignee||"")}" maxlength="6" placeholder="—" title="Delegar" ${ac?`style="border-color:${ac.solid};color:${ac.text};background:${ac.bg}"`:''} />
+        <button type="button" class="st-toggle" data-sid="${st.id}" title="Expandir">▾</button>
+        <button type="button" class="st-delete" data-sid="${st.id}" title="Eliminar">✕</button>
+      </div>
+      <div class="subtask-body">
+        <textarea class="st-notes" data-sid="${st.id}" placeholder="Notas da subtarefa...">${escapeHtml(st.description||"")}</textarea>
+        <div class="attachments-grid" style="margin-top:8px">${attHtml}</div>
+        <button type="button" class="add-attachment-btn" data-add-att-sid="${st.id}" style="margin-top:6px">📎 Adicionar imagem</button>
+      </div>
+    </div>`;
+  }).join("");
+  wrap.querySelectorAll(".st-check").forEach(el => el.addEventListener("change", () => { const st = state.editSubtasks.find(s=>s.id===el.dataset.sid); if (st) { st.status = el.checked?"completed":"pending"; st.completedAt = el.checked?new Date().toISOString():null; renderSubtaskList(); }}));
+  wrap.querySelectorAll(".st-title").forEach(el => el.addEventListener("input", () => { const st = state.editSubtasks.find(s=>s.id===el.dataset.sid); if (st) st.title = el.value; }));
+  wrap.querySelectorAll(".st-hours").forEach(el => el.addEventListener("input", () => { const st = state.editSubtasks.find(s=>s.id===el.dataset.sid); if (st) { st.estimatedHours = parseFloat(el.value)||0; renderMiniGantt(); $("#e-subtasks-hint").textContent = formatSubtaskHint(); }}));
+  wrap.querySelectorAll(".st-assignee").forEach(el => el.addEventListener("blur", () => { const st = state.editSubtasks.find(s=>s.id===el.dataset.sid); if (st) { st.assignee = el.value.trim().toUpperCase()||null; renderSubtaskList(); }}));
+  wrap.querySelectorAll(".st-notes").forEach(el => el.addEventListener("input", () => { const st = state.editSubtasks.find(s=>s.id===el.dataset.sid); if (st) st.description = el.value; }));
+  wrap.querySelectorAll(".st-toggle").forEach(el => el.addEventListener("click", () => { const row = el.closest(".subtask-row"); row.classList.toggle("expanded"); el.textContent = row.classList.contains("expanded")?"▴":"▾"; }));
+  wrap.querySelectorAll(".st-delete").forEach(el => el.addEventListener("click", () => { if (!confirm("Eliminar subtarefa?")) return; state.editSubtasks = state.editSubtasks.filter(s=>s.id!==el.dataset.sid); renderSubtaskList(); }));
+  wrap.querySelectorAll("[data-add-att-sid]").forEach(el => el.addEventListener("click", () => { state.attachTarget = "subtask:"+el.dataset.addAttSid; $("#attachment-file").click(); }));
+  wrap.querySelectorAll(".attachment-thumb[data-sid] img").forEach(el => { const sid = el.parentElement.dataset.sid; const ai = parseInt(el.parentElement.dataset.ai,10); el.addEventListener("click", () => { const st = state.editSubtasks.find(s=>s.id===sid); if (st && st.attachments[ai]) openImageViewer(st.attachments[ai].data); }); });
+  wrap.querySelectorAll(".att-remove[data-rm-sid]").forEach(el => el.addEventListener("click", (e) => { e.stopPropagation(); const st = state.editSubtasks.find(s=>s.id===el.dataset.rmSid); if (st) { st.attachments.splice(parseInt(el.dataset.rmAi,10),1); renderSubtaskList(); }}));
+  renderMiniGantt();
+}
+function renderMiniGantt() {
+  const wrap = $("#e-minigantt-wrapper"); const inner = $("#e-minigantt");
+  const list = state.editSubtasks || [];
+  if (list.length === 0) { wrap.style.display = "none"; return; }
+  wrap.style.display = "";
+  const t = state.tasks.find(x=>x.id===state.editingId);
+  const startDate = t && t.scheduledStart ? new Date(t.scheduledStart) : today0();
+  const endDate = t ? new Date(t.deadline) : addDays(today0(),14);
+  const totalH = list.reduce((s,x)=>s+(parseFloat(x.estimatedHours)||0),0) || 1;
+  let cum = 0;
+  const rows = list.map(st => {
+    const widthPct = ((parseFloat(st.estimatedHours)||0)/totalH)*100;
+    const leftPct = cum; cum += widthPct;
+    const ac = assigneeColor(st.assignee);
+    const bg = st.status==="completed" ? "var(--text-soft)" : (ac?ac.solid:"var(--accent)");
+    return `<div class="mg-row"><div class="mg-name" title="${escapeHtml(st.title)}">${escapeHtml(st.title||"—")}</div><div class="mg-track"><div class="mg-bar" style="left:${leftPct}%;width:${widthPct}%;background:${bg}">${st.estimatedHours}h</div></div></div>`;
+  }).join("");
+  inner.innerHTML = `<div class="mini-gantt"><div class="mg-header"><span>${fmtDate(startDate)}</span><span>${fmtDate(endDate)}</span></div>${rows}</div>`;
+}
+
 function openSettings() { $("#s-daily-hours").value=state.settings.dailyHours; $("#s-weekends").checked=state.settings.workWeekends; $("#s-w-deadline").value=state.settings.weights.deadline; $("#s-w-slack").value=state.settings.weights.slack; $("#s-w-priority").value=state.settings.weights.priority; $("#settings-modal").classList.add("active"); }
 function closeSettings() { state.settings.dailyHours=parseFloat($("#s-daily-hours").value)||8; state.settings.workWeekends=$("#s-weekends").checked; const wd=parseFloat($("#s-w-deadline").value)||0,ws=parseFloat($("#s-w-slack").value)||0,wp=parseFloat($("#s-w-priority").value)||0; const tot=wd+ws+wp||1; state.settings.weights={deadline:wd/tot, slack:ws/tot, priority:wp/tot}; scheduleSave(); render(); $("#settings-modal").classList.remove("active"); }
 function exportData() { const p={tasks:state.tasks,settings:state.settings,exportedAt:new Date().toISOString()}; const b=new Blob([JSON.stringify(p,null,2)],{type:"application/json"}); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=`ppeplan-backup-${isoDate(today0())}.json`; a.click(); URL.revokeObjectURL(u); }
@@ -768,6 +986,13 @@ function init() {
   $("#import-file").addEventListener("change", e=>{if(e.target.files[0]) importData(e.target.files[0]); e.target.value="";});
   $("#e-cancel").addEventListener("click", closeEditModal);
   $("#e-save").addEventListener("click", saveEditModal);
+  // Subtarefas + Anexos
+  $("#e-add-subtask").addEventListener("click", () => { state.editSubtasks.push(newSubtask()); renderSubtaskList(); });
+  $("#e-add-attachment").addEventListener("click", () => { state.attachTarget = "task"; $("#attachment-file").click(); });
+  $("#attachment-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) await handleAttachmentFile(f); e.target.value = ""; });
+  // Image viewer
+  $("#image-viewer-close").addEventListener("click", closeImageViewer);
+  $("#image-viewer").addEventListener("click", (e) => { if (e.target.id === "image-viewer") closeImageViewer(); });
   $("#edit-modal").addEventListener("click", e=>{if(e.target.id==="edit-modal") closeEditModal();});
   $("#settings-modal").addEventListener("click", e=>{if(e.target.id==="settings-modal") closeSettings();});
   document.addEventListener("keydown", e=>{if(e.key==="Escape"){$("#edit-modal").classList.remove("active"); $("#settings-modal").classList.remove("active");} if((e.ctrlKey||e.metaKey)&&e.key==="n"){e.preventDefault(); if($("#app-main").style.display!=="none") $("#t-title").focus();}});
