@@ -520,52 +520,6 @@
 
 <div class="scrim" id="scrim"></div>
 <button class="fab" id="fab" aria-label="Nova atividade">+</button>
-<!-- Subtasks Modal (planilha + Gantt) -->
-<div class="modal-overlay" id="subtasks-modal">
-  <div class="modal subtasks-modal-content">
-    <div class="subtasks-header">
-      <div>
-        <h2 id="sub-modal-title" style="margin:0;font-size:17px">Subtarefas</h2>
-        <div id="sub-modal-summary" style="font-size:12px;color:var(--text-muted);margin-top:4px"></div>
-      </div>
-      <button class="icon-btn" id="sub-close" style="width:32px;height:32px;font-size:16px">✕</button>
-    </div>
-
-    <div class="subtasks-table-wrap">
-      <div class="subtasks-table">
-        <div class="st-thead">
-          <div></div>
-          <div>✓</div>
-          <div>Título</div>
-          <div>h</div>
-          <div>Quem</div>
-          <div title="Notas">📝</div>
-          <div title="Anexos">📎</div>
-          <div></div>
-        </div>
-        <div id="sub-rows"></div>
-      </div>
-      <button class="add-subtask-btn" id="sub-add-row" style="margin-top:10px">+ Nova subtarefa</button>
-    </div>
-
-    <div id="sub-detail-wrap" style="display:none;margin-top:14px">
-      <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Detalhe da subtarefa <span id="sub-detail-name"></span></div>
-      <textarea id="sub-detail-notes" class="textarea" placeholder="Notas..." style="min-height:80px"></textarea>
-      <div class="attachments-grid" id="sub-detail-attachments" style="margin-top:8px"></div>
-      <button type="button" class="add-attachment-btn" id="sub-detail-add-att" style="margin-top:6px">📎 Adicionar imagem</button>
-    </div>
-
-    <div id="sub-gantt-wrap" style="margin-top:18px">
-      <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Cronograma</div>
-      <div id="sub-gantt"></div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-secondary" id="sub-done">Fechar</button>
-    </div>
-  </div>
-</div>
-
 <div class="image-viewer" id="image-viewer">
   <img id="image-viewer-img" alt="" />
   <button class="iv-close" id="image-viewer-close" aria-label="Fechar">✕</button>
@@ -767,7 +721,58 @@ function deleteTask(id) { if(!confirm("Eliminar?")) return; state.tasks=state.ta
 function reorderTask(di, ti, pos) { const o=sortTasks(state.tasks,state.settings).filter(t=>t.status!=="completed"); const i=o.findIndex(t=>t.id===di); if(i<0) return; o.splice(i,1); const ni=o.findIndex(t=>t.id===ti)+(pos==="after"?1:0); o.splice(ni,0,state.tasks.find(t=>t.id===di)); o.forEach((t,i)=>{t.manualOrder=i;}); scheduleSave(); render(); }
 function clearManualOrder() { state.tasks.forEach(t=>t.manualOrder=null); scheduleSave(); render(); toast("Ordem limpa"); }
 
-function render() { computeSchedule(state.tasks, state.settings); const c=$("#content"); if(state.view==="list") c.innerHTML=renderList(); else if(state.view==="gantt") c.innerHTML=renderGantt(); else if(state.view==="calendar") c.innerHTML=renderCalendar(); bindViewEvents(); }
+function render() {
+  computeSchedule(state.tasks, state.settings);
+  const c = $("#content");
+  if (state.drilldownTaskId) {
+    c.innerHTML = renderSubtasksView();
+    bindSubtasksViewEvents();
+    renderSubTable(); renderSubGantt(); renderSubDetail();
+    return;
+  }
+  if(state.view==="list") c.innerHTML=renderList();
+  else if(state.view==="gantt") c.innerHTML=renderGantt();
+  else if(state.view==="calendar") c.innerHTML=renderCalendar();
+  bindViewEvents();
+}
+function renderSubtasksView() {
+  const t = state.tasks.find(x=>x.id===state.drilldownTaskId);
+  if (!t) return `<div class="empty-state"><h3>Tarefa não encontrada</h3></div>`;
+  return `
+    <div class="drilldown-header" style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <button class="btn-secondary" id="sub-back">← Voltar à lista</button>
+      <div style="flex:1;min-width:0">
+        <h2 id="sub-modal-title" style="margin:0;font-size:18px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(t.title)}</h2>
+        <div id="sub-modal-summary" style="font-size:12px;color:var(--text-muted);margin-top:2px"></div>
+      </div>
+      <span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span>
+    </div>
+    <div class="subtasks-table-wrap">
+      <div class="subtasks-table">
+        <div class="st-thead">
+          <div></div><div>✓</div><div>Título</div><div>h</div><div>Quem</div><div>📝</div><div>📎</div><div></div>
+        </div>
+        <div id="sub-rows"></div>
+      </div>
+      <button class="add-subtask-btn" id="sub-add-row" style="margin-top:10px">+ Nova subtarefa</button>
+    </div>
+    <div id="sub-detail-wrap" style="display:none;margin-top:16px;padding:14px;background:var(--surface-warm);border-radius:10px">
+      <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Detalhe da subtarefa<span id="sub-detail-name"></span></div>
+      <textarea id="sub-detail-notes" class="textarea" placeholder="Notas..." style="min-height:80px"></textarea>
+      <div class="attachments-grid" id="sub-detail-attachments" style="margin-top:8px"></div>
+      <button type="button" class="add-attachment-btn" id="sub-detail-add-att" style="margin-top:6px">📎 Adicionar imagem</button>
+    </div>
+    <div id="sub-gantt-wrap" style="margin-top:18px">
+      <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Cronograma</div>
+      <div id="sub-gantt"></div>
+    </div>
+  `;
+}
+function bindSubtasksViewEvents() {
+  $("#sub-back").addEventListener("click", closeSubtasksView);
+  $("#sub-add-row").addEventListener("click", () => { state.subList.push(newSubtask()); state.subActiveId = state.subList[state.subList.length-1].id; renderSubTable(); renderSubGantt(); renderSubDetail(); });
+  $("#sub-detail-add-att").addEventListener("click", () => { if (state.subActiveId) { state.attachTarget = "subtask-detail"; $("#attachment-file").click(); } });
+}
 function renderStats() { const p=state.tasks.filter(t=>t.status!=="completed").length; const a=state.tasks.filter(t=>t.status!=="completed" && t.riskLevel==="risk").length; const o=state.tasks.filter(t=>t.status!=="completed" && new Date(t.deadline)<today0()).length; const h=state.tasks.filter(t=>t.status!=="completed").reduce((s,t)=>s+t.estimatedHours,0); return `<div class="stats"><div class="stat-card"><div class="stat-label">Pendentes</div><div class="stat-value">${p}</div></div><div class="stat-card"><div class="stat-label">Horas estimadas</div><div class="stat-value">${h.toFixed(1)}h</div></div><div class="stat-card"><div class="stat-label">Em risco</div><div class="stat-value ${a>0?'warning':''}">${a}</div></div><div class="stat-card"><div class="stat-label">Atrasadas</div><div class="stat-value ${o>0?'danger':'success'}">${o}</div></div></div>`; }
 function renderList() {
   const tasks = sortTasks(state.tasks, state.settings);
@@ -872,7 +877,7 @@ function bindViewEvents() {
       e.stopPropagation(); const a = b.dataset.act; const t = state.tasks.find(x=>x.id===id);
       if (a==="complete") updateTask(id, {status: t.status==="completed"?"pending":"completed"});
       else if (a==="edit") openEditModal(id);
-      else if (a==="subtasks") openSubtasksModal(id);
+      else if (a==="subtasks") openSubtasksView(id);
       else if (a==="delete") deleteTask(id);
     }));
     row.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", id); row.classList.add("dragging"); });
@@ -971,26 +976,25 @@ function renderAttachmentsGrid() {
 }
 function newSubtask() { return { id: uid(), title: "", description: "", estimatedHours: 1, assignee: null, status: "pending", createdAt: new Date().toISOString(), completedAt: null, attachments: [] }; }
 
-// ====== Subtasks Modal (planilha) ======
-function openSubtasksModal(taskId) {
+// ====== Subtasks Drilldown View ======
+function openSubtasksView(taskId) {
   const t = state.tasks.find(x => x.id === taskId); if (!t) return;
+  state.drilldownTaskId = taskId;
   state.subTaskId = taskId;
   state.subList = JSON.parse(JSON.stringify(t.subtasks || []));
   state.subActiveId = null;
-  $("#sub-modal-title").textContent = "Subtarefas — " + t.title;
-  renderSubTable();
-  renderSubGantt();
-  renderSubDetail();
-  $("#subtasks-modal").classList.add("active");
+  render();
 }
-function closeSubtasksModal() {
-  // Commit das subtarefas (filtra entradas vazias)
+function closeSubtasksView() {
   if (state.subTaskId) {
     const cleaned = state.subList.filter(s => s.title && s.title.trim() !== "");
     updateTask(state.subTaskId, { subtasks: cleaned });
   }
-  state.subTaskId = null; state.subList = []; state.subActiveId = null;
-  $("#subtasks-modal").classList.remove("active");
+  state.drilldownTaskId = null;
+  state.subTaskId = null;
+  state.subList = [];
+  state.subActiveId = null;
+  render();
 }
 function subSummary() {
   const l = state.subList || [];
@@ -1092,7 +1096,15 @@ function importData(f) { const r=new FileReader(); r.onload=()=>{ try { const d=
 function init() {
   loadLocal();
   $("#t-deadline").value = isoDate(today0());
-  $$("#tabs .tab").forEach(t=>t.addEventListener("click", ()=>{$$("#tabs .tab").forEach(x=>x.classList.remove("active")); t.classList.add("active"); state.view=t.dataset.view; render();}));
+  $$("#tabs .tab").forEach(t=>t.addEventListener("click", ()=>{
+    // Se estamos em drilldown, faz commit das subtarefas antes de sair
+    if (state.drilldownTaskId && state.subTaskId) {
+      const cleaned = state.subList.filter(s => s.title && s.title.trim() !== "");
+      updateTask(state.subTaskId, { subtasks: cleaned });
+      state.drilldownTaskId = null; state.subTaskId = null; state.subList = []; state.subActiveId = null;
+    }
+    $$("#tabs .tab").forEach(x=>x.classList.remove("active")); t.classList.add("active"); state.view=t.dataset.view; render();
+  }));
   $$("#priority-picker button").forEach(b=>b.addEventListener("click", ()=>{$$("#priority-picker button").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.newTaskPriority=parseInt(b.dataset.p,10);}));
   $$("#e-priority-picker button").forEach(b=>b.addEventListener("click", ()=>{$$("#e-priority-picker button").forEach(x=>x.classList.remove("active")); b.classList.add("active"); state.editTaskPriority=parseInt(b.dataset.p,10);}));
   $("#task-form").addEventListener("submit", e=>{e.preventDefault(); const t=$("#t-title").value.trim(), d=$("#t-deadline").value, h=parseFloat($("#t-hours").value), n=$("#t-desc").value.trim(), a=$("#t-assignee").value.trim().toUpperCase(); if(!t||!d||!h){toast("Campos em falta","error"); return;} addTask({title:t, description:n, deadline:d, estimatedHours:h, manualPriority:state.newTaskPriority, assignee:a}); e.target.reset(); $("#t-deadline").value=isoDate(today0()); $("#t-hours").value=4; $("#t-assignee").value=""; $$("#priority-picker button").forEach(x=>x.classList.toggle("active", x.dataset.p==="3")); state.newTaskPriority=3; toast("Adicionada");});
@@ -1122,12 +1134,7 @@ function init() {
   $("#e-save").addEventListener("click", saveEditModal);
   // Anexos
   $("#e-add-attachment").addEventListener("click", () => { state.attachTarget = "task"; $("#attachment-file").click(); });
-  // Subtasks Modal
-  $("#sub-add-row").addEventListener("click", () => { state.subList.push(newSubtask()); state.subActiveId = state.subList[state.subList.length-1].id; renderSubTable(); renderSubGantt(); renderSubDetail(); });
-  $("#sub-close").addEventListener("click", closeSubtasksModal);
-  $("#sub-done").addEventListener("click", closeSubtasksModal);
-  $("#sub-detail-add-att").addEventListener("click", () => { if (state.subActiveId) { state.attachTarget = "subtask-detail"; $("#attachment-file").click(); } });
-  $("#subtasks-modal").addEventListener("click", (e) => { if (e.target.id === "subtasks-modal") closeSubtasksModal(); });
+  // Subtasks view events são ligados dinamicamente em bindSubtasksViewEvents()
   $("#attachment-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) await handleAttachmentFile(f); e.target.value = ""; });
   // Image viewer
   $("#image-viewer-close").addEventListener("click", closeImageViewer);
