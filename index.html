@@ -270,6 +270,44 @@
   .mg-track { position: relative; height: 20px; background: var(--surface); border-radius: 4px; border: 1px solid var(--border); }
   .mg-bar { position: absolute; top: 2px; bottom: 2px; min-width: 6px; border-radius: 3px; color: #fff; font-size: 9.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 3px; overflow: hidden; }
 
+  /* Subtasks Modal (planilha) */
+  .subtasks-modal-content { width: 90vw; max-width: 1000px; max-height: 92vh; padding: 18px 22px; }
+  .subtasks-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .subtasks-table-wrap { overflow-x: auto; }
+  .subtasks-table { display: grid; grid-template-columns: 22px 28px 1fr 56px 70px 36px 50px 30px; gap: 0; min-width: 580px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .st-thead { display: contents; }
+  .st-thead > div { padding: 8px 6px; background: var(--surface-warm); border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+  .st-trow { display: contents; }
+  .st-trow > * { padding: 4px 5px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; min-height: 36px; box-sizing: border-box; }
+  .st-trow:last-child > * { border-bottom: none; }
+  .st-trow.completed > * { background: #f5f5f5; opacity: 0.7; }
+  .st-trow.active > * { background: var(--accent-soft); }
+  .st-trow input[type="text"], .st-trow input[type="number"] { width: 100%; padding: 4px 6px; border: 1px solid transparent; background: transparent; border-radius: 4px; font-size: 12.5px; outline: none; box-sizing: border-box; }
+  .st-trow input[type="text"]:focus, .st-trow input[type="number"]:focus { border-color: var(--accent); background: #fff; }
+  .st-trow .st-handle { cursor: grab; color: var(--text-soft); justify-content: center; font-size: 12px; }
+  .st-trow .st-check input { accent-color: var(--accent); cursor: pointer; }
+  .st-trow .st-col-check { justify-content: center; }
+  .st-trow .st-col-h input { text-align: center; font-variant-numeric: tabular-nums; }
+  .st-trow .st-col-who input { text-align: center; text-transform: uppercase; font-weight: 600; font-size: 11.5px; }
+  .st-trow button.st-icon { background: transparent; border: none; padding: 4px; font-size: 14px; cursor: pointer; color: var(--text-soft); border-radius: 4px; width: 100%; }
+  .st-trow button.st-icon:hover { background: var(--accent-soft); color: var(--accent); }
+  .st-trow button.st-icon.has-content { color: var(--accent); }
+  .st-trow button.st-icon.danger:hover { color: var(--danger); background: var(--danger-soft); }
+  .st-trow .badge-count { display: inline-block; min-width: 18px; padding: 1px 5px; background: var(--accent); color: #fff; border-radius: 8px; font-size: 9.5px; font-weight: 700; margin-left: 2px; }
+
+  /* Sub-gantt no modal */
+  #sub-gantt .mini-gantt { background: var(--surface-warm); border-radius: 8px; padding: 10px; }
+  #sub-gantt .mg-row { grid-template-columns: 180px 1fr; }
+  #sub-gantt .mg-track { height: 24px; }
+  #sub-gantt .mg-bar { font-size: 10px; }
+
+  @media (max-width: 768px) {
+    .subtasks-modal-content { width: 96vw; max-height: 96vh; padding: 12px; }
+    .subtasks-table { grid-template-columns: 22px 24px 1fr 48px 52px 30px 40px 26px; min-width: 480px; font-size: 11.5px; }
+    #sub-gantt .mg-row { grid-template-columns: 100px 1fr; }
+    .subtasks-header h2 { font-size: 15px; }
+  }
+
   /* Image viewer */
   .image-viewer { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 300; padding: 20px; }
   .image-viewer.active { display: flex; }
@@ -476,23 +514,58 @@
       <button type="button" class="add-attachment-btn" id="e-add-attachment">📎 Adicionar imagem</button>
     </div>
 
-    <div class="field">
-      <label>Subtarefas <span style="font-weight:400;color:var(--text-soft);font-size:11px" id="e-subtasks-hint"></span></label>
-      <div class="subtask-list" id="e-subtasks"></div>
-      <button type="button" class="add-subtask-btn" id="e-add-subtask">+ Adicionar subtarefa</button>
-    </div>
-
-    <div class="field" id="e-minigantt-wrapper" style="display:none">
-      <label>Cronograma das subtarefas</label>
-      <div id="e-minigantt"></div>
-    </div>
-
     <div class="modal-actions"><button class="btn-secondary" id="e-cancel">Cancelar</button><button class="btn-primary" id="e-save" style="width:auto;padding:10px 18px">Guardar</button></div>
   </div>
 </div>
 
 <div class="scrim" id="scrim"></div>
 <button class="fab" id="fab" aria-label="Nova atividade">+</button>
+<!-- Subtasks Modal (planilha + Gantt) -->
+<div class="modal-overlay" id="subtasks-modal">
+  <div class="modal subtasks-modal-content">
+    <div class="subtasks-header">
+      <div>
+        <h2 id="sub-modal-title" style="margin:0;font-size:17px">Subtarefas</h2>
+        <div id="sub-modal-summary" style="font-size:12px;color:var(--text-muted);margin-top:4px"></div>
+      </div>
+      <button class="icon-btn" id="sub-close" style="width:32px;height:32px;font-size:16px">✕</button>
+    </div>
+
+    <div class="subtasks-table-wrap">
+      <div class="subtasks-table">
+        <div class="st-thead">
+          <div></div>
+          <div>✓</div>
+          <div>Título</div>
+          <div>h</div>
+          <div>Quem</div>
+          <div title="Notas">📝</div>
+          <div title="Anexos">📎</div>
+          <div></div>
+        </div>
+        <div id="sub-rows"></div>
+      </div>
+      <button class="add-subtask-btn" id="sub-add-row" style="margin-top:10px">+ Nova subtarefa</button>
+    </div>
+
+    <div id="sub-detail-wrap" style="display:none;margin-top:14px">
+      <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Detalhe da subtarefa <span id="sub-detail-name"></span></div>
+      <textarea id="sub-detail-notes" class="textarea" placeholder="Notas..." style="min-height:80px"></textarea>
+      <div class="attachments-grid" id="sub-detail-attachments" style="margin-top:8px"></div>
+      <button type="button" class="add-attachment-btn" id="sub-detail-add-att" style="margin-top:6px">📎 Adicionar imagem</button>
+    </div>
+
+    <div id="sub-gantt-wrap" style="margin-top:18px">
+      <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Cronograma</div>
+      <div id="sub-gantt"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" id="sub-done">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <div class="image-viewer" id="image-viewer">
   <img id="image-viewer-img" alt="" />
   <button class="iv-close" id="image-viewer-close" aria-label="Fechar">✕</button>
@@ -712,7 +785,7 @@ function renderList() {
     const subDone = subs.filter(s => s.status==="completed").length;
     const subBadge = subs.length > 0 ? `<span class="subtask-progress ${subDone===subs.length?'complete':''}" title="${subDone}/${subs.length} subtarefas concluídas">${subDone}/${subs.length}${subDone===subs.length?' ✓':''}</span>` : '';
     const attBadge = (t.attachments && t.attachments.length) ? `<span class="subtask-progress" title="${t.attachments.length} imagens anexadas">📎${t.attachments.length}</span>` : '';
-    return `<div class="task-row ${t.status==='completed'?'completed':''} ${t.assignee?'delegated':''}" draggable="true" data-id="${t.id}"><div class="task-handle">${pin?'📌':'⋮⋮'}</div><div class="task-main"><div class="task-title">${tag}<span ${tst}>${escapeHtml(t.title)}</span>${subBadge}${attBadge}</div><div class="task-meta"><span class="chip">📅 ${fmtDate(t.deadline)}</span><span class="chip">⏱ ${t.estimatedHours}h</span><span class="chip">${dl<0?`<b style="color:var(--danger)">${-dl}d atrasado</b>`:`${dl}d restantes`}</span>${t.scheduledEnd?`<span class="chip">Termina: ${fmtDate(t.scheduledEnd)}</span>`:""}</div></div><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span>${sp}<div class="score-bar"><div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%"></div></div></div><div class="task-actions"><button class="icon-btn" data-act="complete">${t.status==='completed'?'↺':'✓'}</button><button class="icon-btn" data-act="edit">✎</button><button class="icon-btn danger" data-act="delete">✕</button></div></div>`;
+    return `<div class="task-row ${t.status==='completed'?'completed':''} ${t.assignee?'delegated':''}" draggable="true" data-id="${t.id}"><div class="task-handle">${pin?'📌':'⋮⋮'}</div><div class="task-main"><div class="task-title">${tag}<span ${tst}>${escapeHtml(t.title)}</span>${subBadge}${attBadge}</div><div class="task-meta"><span class="chip">📅 ${fmtDate(t.deadline)}</span><span class="chip">⏱ ${t.estimatedHours}h</span><span class="chip">${dl<0?`<b style="color:var(--danger)">${-dl}d atrasado</b>`:`${dl}d restantes`}</span>${t.scheduledEnd?`<span class="chip">Termina: ${fmtDate(t.scheduledEnd)}</span>`:""}</div></div><span class="priority-badge priority-${t.manualPriority}">P${t.manualPriority}</span>${sp}<div class="score-bar"><div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%"></div></div></div><div class="task-actions"><button class="icon-btn" data-act="complete" title="${t.status==='completed'?'Marcar pendente':'Concluir'}">${t.status==='completed'?'↺':'✓'}</button><button class="icon-btn" data-act="subtasks" title="Subtarefas">⊟</button><button class="icon-btn" data-act="edit" title="Editar">✎</button><button class="icon-btn danger" data-act="delete" title="Eliminar">✕</button></div></div>`;
   }).join("");
   return renderStats()+`<div class="list-toolbar"><h2>Atividades</h2><div class="list-toolbar-actions"><button class="btn-ghost" id="btn-clear-manual">Limpar ordem manual</button></div></div><div class="task-list">${rows}</div>`;
 }
@@ -798,7 +871,9 @@ function bindViewEvents() {
     row.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", e => {
       e.stopPropagation(); const a = b.dataset.act; const t = state.tasks.find(x=>x.id===id);
       if (a==="complete") updateTask(id, {status: t.status==="completed"?"pending":"completed"});
-      else if (a==="edit") openEditModal(id); else if (a==="delete") deleteTask(id);
+      else if (a==="edit") openEditModal(id);
+      else if (a==="subtasks") openSubtasksModal(id);
+      else if (a==="delete") deleteTask(id);
     }));
     row.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", id); row.classList.add("dragging"); });
     row.addEventListener("dragend", () => { row.classList.remove("dragging"); $$(".task-row").forEach(r=>r.classList.remove("drop-target")); });
@@ -819,11 +894,10 @@ function openEditModal(id) {
   state.editingId=id; state.editTaskPriority=t.manualPriority;
   $("#e-title").value=t.title; $("#e-desc").value=t.description||""; $("#e-deadline").value=t.deadline; $("#e-hours").value=t.estimatedHours; $("#e-assignee").value=t.assignee||""; $("#e-status").value=t.status;
   $$("#e-priority-picker button").forEach(b=>b.classList.toggle("active", parseInt(b.dataset.p)===t.manualPriority));
-  // Clona attachments e subtasks para o estado de edição
+  // Clona attachments para o estado de edição (subtarefas têm modal próprio)
   state.editAttachments = JSON.parse(JSON.stringify(t.attachments || []));
-  state.editSubtasks = JSON.parse(JSON.stringify(t.subtasks || []));
   state.attachTarget = "task";
-  renderAttachmentsGrid(); renderSubtaskList();
+  renderAttachmentsGrid();
   $("#edit-modal").classList.add("active");
 }
 function closeEditModal() { $("#edit-modal").classList.remove("active"); state.editingId=null; }
@@ -834,16 +908,20 @@ function saveEditModal() {
     deadline: $("#e-deadline").value, estimatedHours: parseFloat($("#e-hours").value),
     assignee: ($("#e-assignee").value.trim().toUpperCase()||null),
     manualPriority: state.editTaskPriority, status: $("#e-status").value,
-    attachments: state.editAttachments.slice(),
-    subtasks: state.editSubtasks.filter(s => s.title.trim() !== "")
+    attachments: state.editAttachments.slice()
+    // subtasks preservadas como estão — geridas no modal de subtarefas
   };
   if(!p.title||!p.deadline||!p.estimatedHours){toast("Campos em falta", "error"); return;}
   updateTask(state.editingId, p); closeEditModal();
 }
-// ====== Subtarefas + Anexos ======
-state.editSubtasks = [];
+// ====== Anexos (compressão, viewer) ======
 state.editAttachments = [];
-state.attachTarget = "task";
+state.attachTarget = "task"; // "task" | "subtask:<sid>" | "task-edit"
+
+// ====== Subtasks Modal state ======
+state.subTaskId = null;       // id da tarefa parent cujas subtarefas estamos a editar
+state.subList = [];           // cópia editável das subtarefas
+state.subActiveId = null;     // qual subtarefa está com detalhes (notas/anexos) abertos
 
 function compressImage(file, maxWidth = 1400, maxKB = 600) {
   return new Promise((resolve, reject) => {
@@ -872,10 +950,9 @@ async function handleAttachmentFile(file) {
     const dataUrl = await compressImage(file);
     const att = { data: dataUrl, caption: "", addedAt: new Date().toISOString() };
     if (state.attachTarget === "task") { state.editAttachments.push(att); renderAttachmentsGrid(); }
-    else if (state.attachTarget.startsWith("subtask:")) {
-      const sid = state.attachTarget.split(":")[1];
-      const st = state.editSubtasks.find(s => s.id === sid);
-      if (st) { st.attachments = st.attachments || []; st.attachments.push(att); renderSubtaskList(); }
+    else if (state.attachTarget === "subtask-detail" && state.subActiveId) {
+      const st = state.subList.find(s => s.id === state.subActiveId);
+      if (st) { st.attachments = st.attachments || []; st.attachments.push(att); renderSubDetail(); renderSubTable(); }
     }
     toast("Imagem adicionada");
   } catch (e) { toast("Erro: " + e.message, "error"); }
@@ -893,51 +970,104 @@ function renderAttachmentsGrid() {
   });
 }
 function newSubtask() { return { id: uid(), title: "", description: "", estimatedHours: 1, assignee: null, status: "pending", createdAt: new Date().toISOString(), completedAt: null, attachments: [] }; }
-function formatSubtaskHint() { const l = state.editSubtasks || []; if (!l.length) return ""; const d = l.filter(s=>s.status==="completed").length; const h = l.reduce((s,x)=>s+(parseFloat(x.estimatedHours)||0),0); return `· ${d}/${l.length} concluídas · ${h.toFixed(1)}h total`; }
-function renderSubtaskList() {
-  const wrap = $("#e-subtasks"); const hint = $("#e-subtasks-hint");
-  const list = state.editSubtasks || [];
-  hint.textContent = formatSubtaskHint();
-  if (list.length === 0) { wrap.innerHTML = ""; renderMiniGantt(); return; }
-  wrap.innerHTML = list.map(st => {
+
+// ====== Subtasks Modal (planilha) ======
+function openSubtasksModal(taskId) {
+  const t = state.tasks.find(x => x.id === taskId); if (!t) return;
+  state.subTaskId = taskId;
+  state.subList = JSON.parse(JSON.stringify(t.subtasks || []));
+  state.subActiveId = null;
+  $("#sub-modal-title").textContent = "Subtarefas — " + t.title;
+  renderSubTable();
+  renderSubGantt();
+  renderSubDetail();
+  $("#subtasks-modal").classList.add("active");
+}
+function closeSubtasksModal() {
+  // Commit das subtarefas (filtra entradas vazias)
+  if (state.subTaskId) {
+    const cleaned = state.subList.filter(s => s.title && s.title.trim() !== "");
+    updateTask(state.subTaskId, { subtasks: cleaned });
+  }
+  state.subTaskId = null; state.subList = []; state.subActiveId = null;
+  $("#subtasks-modal").classList.remove("active");
+}
+function subSummary() {
+  const l = state.subList || [];
+  if (!l.length) return "Sem subtarefas. Clica em \"Nova subtarefa\" para começar.";
+  const d = l.filter(s => s.status === "completed").length;
+  const h = l.reduce((s,x)=>s+(parseFloat(x.estimatedHours)||0),0);
+  return `${d}/${l.length} concluídas · ${h.toFixed(1)}h total`;
+}
+function renderSubTable() {
+  $("#sub-modal-summary").textContent = subSummary();
+  const wrap = $("#sub-rows");
+  const list = state.subList || [];
+  if (list.length === 0) { wrap.innerHTML = ""; return; }
+  wrap.innerHTML = list.map((st, idx) => {
     const ac = assigneeColor(st.assignee);
-    const attHtml = (st.attachments || []).map((a, ai) => `<div class="attachment-thumb" data-sid="${st.id}" data-ai="${ai}"><img src="${a.data}" alt="" /><button class="att-remove" data-rm-sid="${st.id}" data-rm-ai="${ai}">✕</button></div>`).join("");
-    return `<div class="subtask-row ${st.status==='completed'?'completed':''}" data-sid="${st.id}">
-      <div class="subtask-head">
-        <input type="checkbox" class="st-check" data-sid="${st.id}" ${st.status==='completed'?'checked':''} />
-        <input type="text" class="st-title" data-sid="${st.id}" value="${escapeHtml(st.title)}" placeholder="Subtarefa..." />
-        <input type="number" class="st-hours" data-sid="${st.id}" value="${st.estimatedHours}" min="0.25" step="0.25" title="Horas" />
-        <input type="text" class="st-assignee" data-sid="${st.id}" value="${escapeHtml(st.assignee||"")}" maxlength="6" placeholder="—" title="Delegar" ${ac?`style="border-color:${ac.solid};color:${ac.text};background:${ac.bg}"`:''} />
-        <button type="button" class="st-toggle" data-sid="${st.id}" title="Expandir">▾</button>
-        <button type="button" class="st-delete" data-sid="${st.id}" title="Eliminar">✕</button>
-      </div>
-      <div class="subtask-body">
-        <textarea class="st-notes" data-sid="${st.id}" placeholder="Notas da subtarefa...">${escapeHtml(st.description||"")}</textarea>
-        <div class="attachments-grid" style="margin-top:8px">${attHtml}</div>
-        <button type="button" class="add-attachment-btn" data-add-att-sid="${st.id}" style="margin-top:6px">📎 Adicionar imagem</button>
-      </div>
+    const hasNotes = (st.description||"").trim().length > 0;
+    const attCount = (st.attachments||[]).length;
+    const isActive = state.subActiveId === st.id;
+    return `<div class="st-trow ${st.status==='completed'?'completed':''} ${isActive?'active':''}" data-sid="${st.id}">
+      <div class="st-handle">⋮⋮</div>
+      <div class="st-col-check"><input type="checkbox" class="st-check" data-sid="${st.id}" ${st.status==='completed'?'checked':''} /></div>
+      <div><input type="text" class="st-title" data-sid="${st.id}" value="${escapeHtml(st.title)}" placeholder="Subtarefa..." /></div>
+      <div class="st-col-h"><input type="number" class="st-hours" data-sid="${st.id}" value="${st.estimatedHours}" min="0.25" step="0.25" /></div>
+      <div class="st-col-who"><input type="text" class="st-assignee" data-sid="${st.id}" value="${escapeHtml(st.assignee||"")}" maxlength="6" ${ac?`style="color:${ac.text};background:${ac.bg}"`:''} /></div>
+      <div><button class="st-icon ${hasNotes?'has-content':''}" data-act="notes" data-sid="${st.id}" title="Notas">📝</button></div>
+      <div><button class="st-icon ${attCount>0?'has-content':''}" data-act="att" data-sid="${st.id}" title="Anexos">📎${attCount>0?`<span class="badge-count">${attCount}</span>`:''}</button></div>
+      <div><button class="st-icon danger" data-act="del" data-sid="${st.id}" title="Eliminar">✕</button></div>
     </div>`;
   }).join("");
-  wrap.querySelectorAll(".st-check").forEach(el => el.addEventListener("change", () => { const st = state.editSubtasks.find(s=>s.id===el.dataset.sid); if (st) { st.status = el.checked?"completed":"pending"; st.completedAt = el.checked?new Date().toISOString():null; renderSubtaskList(); }}));
-  wrap.querySelectorAll(".st-title").forEach(el => el.addEventListener("input", () => { const st = state.editSubtasks.find(s=>s.id===el.dataset.sid); if (st) st.title = el.value; }));
-  wrap.querySelectorAll(".st-hours").forEach(el => el.addEventListener("input", () => { const st = state.editSubtasks.find(s=>s.id===el.dataset.sid); if (st) { st.estimatedHours = parseFloat(el.value)||0; renderMiniGantt(); $("#e-subtasks-hint").textContent = formatSubtaskHint(); }}));
-  wrap.querySelectorAll(".st-assignee").forEach(el => el.addEventListener("blur", () => { const st = state.editSubtasks.find(s=>s.id===el.dataset.sid); if (st) { st.assignee = el.value.trim().toUpperCase()||null; renderSubtaskList(); }}));
-  wrap.querySelectorAll(".st-notes").forEach(el => el.addEventListener("input", () => { const st = state.editSubtasks.find(s=>s.id===el.dataset.sid); if (st) st.description = el.value; }));
-  wrap.querySelectorAll(".st-toggle").forEach(el => el.addEventListener("click", () => { const row = el.closest(".subtask-row"); row.classList.toggle("expanded"); el.textContent = row.classList.contains("expanded")?"▴":"▾"; }));
-  wrap.querySelectorAll(".st-delete").forEach(el => el.addEventListener("click", () => { if (!confirm("Eliminar subtarefa?")) return; state.editSubtasks = state.editSubtasks.filter(s=>s.id!==el.dataset.sid); renderSubtaskList(); }));
-  wrap.querySelectorAll("[data-add-att-sid]").forEach(el => el.addEventListener("click", () => { state.attachTarget = "subtask:"+el.dataset.addAttSid; $("#attachment-file").click(); }));
-  wrap.querySelectorAll(".attachment-thumb[data-sid] img").forEach(el => { const sid = el.parentElement.dataset.sid; const ai = parseInt(el.parentElement.dataset.ai,10); el.addEventListener("click", () => { const st = state.editSubtasks.find(s=>s.id===sid); if (st && st.attachments[ai]) openImageViewer(st.attachments[ai].data); }); });
-  wrap.querySelectorAll(".att-remove[data-rm-sid]").forEach(el => el.addEventListener("click", (e) => { e.stopPropagation(); const st = state.editSubtasks.find(s=>s.id===el.dataset.rmSid); if (st) { st.attachments.splice(parseInt(el.dataset.rmAi,10),1); renderSubtaskList(); }}));
-  renderMiniGantt();
+  // Bind events
+  wrap.querySelectorAll(".st-check").forEach(el => el.addEventListener("change", () => {
+    const st = state.subList.find(s=>s.id===el.dataset.sid);
+    if (st) { st.status = el.checked?"completed":"pending"; st.completedAt = el.checked?new Date().toISOString():null; renderSubTable(); renderSubGantt(); }
+  }));
+  wrap.querySelectorAll(".st-title").forEach(el => el.addEventListener("input", () => {
+    const st = state.subList.find(s=>s.id===el.dataset.sid); if (st) { st.title = el.value; $("#sub-modal-summary").textContent = subSummary(); renderSubGantt(); }
+  }));
+  wrap.querySelectorAll(".st-hours").forEach(el => el.addEventListener("input", () => {
+    const st = state.subList.find(s=>s.id===el.dataset.sid); if (st) { st.estimatedHours = parseFloat(el.value)||0; $("#sub-modal-summary").textContent = subSummary(); renderSubGantt(); }
+  }));
+  wrap.querySelectorAll(".st-assignee").forEach(el => el.addEventListener("blur", () => {
+    const st = state.subList.find(s=>s.id===el.dataset.sid); if (st) { st.assignee = el.value.trim().toUpperCase()||null; renderSubTable(); renderSubGantt(); }
+  }));
+  wrap.querySelectorAll("[data-act='notes']").forEach(el => el.addEventListener("click", () => { state.subActiveId = el.dataset.sid; renderSubDetail(); renderSubTable(); }));
+  wrap.querySelectorAll("[data-act='att']").forEach(el => el.addEventListener("click", () => { state.subActiveId = el.dataset.sid; renderSubDetail(); renderSubTable(); }));
+  wrap.querySelectorAll("[data-act='del']").forEach(el => el.addEventListener("click", () => {
+    if (!confirm("Eliminar subtarefa?")) return;
+    state.subList = state.subList.filter(s=>s.id!==el.dataset.sid);
+    if (state.subActiveId === el.dataset.sid) state.subActiveId = null;
+    renderSubTable(); renderSubGantt(); renderSubDetail();
+  }));
 }
-function renderMiniGantt() {
-  const wrap = $("#e-minigantt-wrapper"); const inner = $("#e-minigantt");
-  const list = state.editSubtasks || [];
-  if (list.length === 0) { wrap.style.display = "none"; return; }
+function renderSubDetail() {
+  const wrap = $("#sub-detail-wrap"); const nameEl = $("#sub-detail-name"); const notesEl = $("#sub-detail-notes"); const attEl = $("#sub-detail-attachments");
+  if (!state.subActiveId) { wrap.style.display = "none"; return; }
+  const st = state.subList.find(s=>s.id===state.subActiveId);
+  if (!st) { wrap.style.display = "none"; return; }
   wrap.style.display = "";
-  const t = state.tasks.find(x=>x.id===state.editingId);
-  const startDate = t && t.scheduledStart ? new Date(t.scheduledStart) : today0();
-  const endDate = t ? new Date(t.deadline) : addDays(today0(),14);
+  nameEl.textContent = ": " + (st.title || "(sem título)");
+  notesEl.value = st.description || "";
+  notesEl.oninput = () => { st.description = notesEl.value; };
+  // Attachments grid
+  const atts = st.attachments || [];
+  attEl.innerHTML = atts.map((a, i) => `<div class="attachment-thumb" data-i="${i}"><img src="${a.data}" alt="" /><button class="att-remove" data-i="${i}">✕</button></div>`).join("");
+  attEl.querySelectorAll(".attachment-thumb").forEach(el => {
+    const i = parseInt(el.dataset.i, 10);
+    el.querySelector("img").onclick = () => openImageViewer(atts[i].data);
+    el.querySelector(".att-remove").onclick = (e) => { e.stopPropagation(); atts.splice(i, 1); renderSubDetail(); renderSubTable(); };
+  });
+}
+function renderSubGantt() {
+  const inner = $("#sub-gantt");
+  const list = state.subList || [];
+  const t = state.tasks.find(x=>x.id===state.subTaskId);
+  if (!t || list.length === 0) { inner.innerHTML = `<div style="color:var(--text-soft);font-size:12px;padding:8px;background:var(--surface-warm);border-radius:8px">Sem subtarefas para mostrar.</div>`; return; }
+  const startDate = t.scheduledStart ? new Date(t.scheduledStart) : today0();
+  const endDate = new Date(t.deadline);
   const totalH = list.reduce((s,x)=>s+(parseFloat(x.estimatedHours)||0),0) || 1;
   let cum = 0;
   const rows = list.map(st => {
@@ -945,10 +1075,14 @@ function renderMiniGantt() {
     const leftPct = cum; cum += widthPct;
     const ac = assigneeColor(st.assignee);
     const bg = st.status==="completed" ? "var(--text-soft)" : (ac?ac.solid:"var(--accent)");
-    return `<div class="mg-row"><div class="mg-name" title="${escapeHtml(st.title)}">${escapeHtml(st.title||"—")}</div><div class="mg-track"><div class="mg-bar" style="left:${leftPct}%;width:${widthPct}%;background:${bg}">${st.estimatedHours}h</div></div></div>`;
+    return `<div class="mg-row"><div class="mg-name" title="${escapeHtml(st.title)}">${escapeHtml(st.title||"—")}</div><div class="mg-track"><div class="mg-bar" style="left:${leftPct}%;width:${widthPct}%;background:${bg}">${st.estimatedHours}h${st.assignee?' · '+escapeHtml(st.assignee):''}</div></div></div>`;
   }).join("");
-  inner.innerHTML = `<div class="mini-gantt"><div class="mg-header"><span>${fmtDate(startDate)}</span><span>${fmtDate(endDate)}</span></div>${rows}</div>`;
+  inner.innerHTML = `<div class="mini-gantt"><div class="mg-header" style="padding-right:0;margin-left:180px"><span>${fmtDate(startDate)}</span><span>${fmtDate(endDate)}</span></div>${rows}</div>`;
 }
+
+// Legacy stubs (old API)
+function renderSubtaskList() {}
+function renderMiniGantt() {}
 
 function openSettings() { $("#s-daily-hours").value=state.settings.dailyHours; $("#s-weekends").checked=state.settings.workWeekends; $("#s-w-deadline").value=state.settings.weights.deadline; $("#s-w-slack").value=state.settings.weights.slack; $("#s-w-priority").value=state.settings.weights.priority; $("#settings-modal").classList.add("active"); }
 function closeSettings() { state.settings.dailyHours=parseFloat($("#s-daily-hours").value)||8; state.settings.workWeekends=$("#s-weekends").checked; const wd=parseFloat($("#s-w-deadline").value)||0,ws=parseFloat($("#s-w-slack").value)||0,wp=parseFloat($("#s-w-priority").value)||0; const tot=wd+ws+wp||1; state.settings.weights={deadline:wd/tot, slack:ws/tot, priority:wp/tot}; scheduleSave(); render(); $("#settings-modal").classList.remove("active"); }
@@ -986,9 +1120,14 @@ function init() {
   $("#import-file").addEventListener("change", e=>{if(e.target.files[0]) importData(e.target.files[0]); e.target.value="";});
   $("#e-cancel").addEventListener("click", closeEditModal);
   $("#e-save").addEventListener("click", saveEditModal);
-  // Subtarefas + Anexos
-  $("#e-add-subtask").addEventListener("click", () => { state.editSubtasks.push(newSubtask()); renderSubtaskList(); });
+  // Anexos
   $("#e-add-attachment").addEventListener("click", () => { state.attachTarget = "task"; $("#attachment-file").click(); });
+  // Subtasks Modal
+  $("#sub-add-row").addEventListener("click", () => { state.subList.push(newSubtask()); state.subActiveId = state.subList[state.subList.length-1].id; renderSubTable(); renderSubGantt(); renderSubDetail(); });
+  $("#sub-close").addEventListener("click", closeSubtasksModal);
+  $("#sub-done").addEventListener("click", closeSubtasksModal);
+  $("#sub-detail-add-att").addEventListener("click", () => { if (state.subActiveId) { state.attachTarget = "subtask-detail"; $("#attachment-file").click(); } });
+  $("#subtasks-modal").addEventListener("click", (e) => { if (e.target.id === "subtasks-modal") closeSubtasksModal(); });
   $("#attachment-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) await handleAttachmentFile(f); e.target.value = ""; });
   // Image viewer
   $("#image-viewer-close").addEventListener("click", closeImageViewer);
