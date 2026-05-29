@@ -272,30 +272,37 @@
 
   /* Subtasks list (cards limpos) */
   .subtasks-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-  .subtasks-list-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .subtasks-list-wrap { display: flex; flex-direction: column; gap: 4px; }
   .subtask-item {
-    display: grid; grid-template-columns: 26px 1fr auto auto auto;
-    gap: 12px; align-items: center; padding: 10px 14px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    box-shadow: var(--shadow-sm); transition: all 0.15s;
+    display: grid; grid-template-columns: 24px 18px 1fr auto auto auto;
+    gap: 8px; align-items: center; padding: 5px 10px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: var(--shadow-sm); transition: all 0.12s;
   }
   .subtask-item:hover { box-shadow: var(--shadow); }
   .subtask-item.completed { opacity: 0.55; }
   .subtask-item.completed .si-title { text-decoration: line-through; color: var(--text-muted); }
   .subtask-item.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
-  .si-check { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; justify-self: center; }
-  .si-title { background: transparent; border: 1px solid transparent; padding: 6px 8px; font-size: 14px; font-weight: 500; color: var(--text); width: 100%; outline: none; border-radius: 6px; min-width: 0; }
+  .si-num { color: var(--text-soft); font-size: 11px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; }
+  .si-check { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; justify-self: center; }
+  .si-title { background: transparent; border: 1px solid transparent; padding: 4px 6px; font-size: 13px; font-weight: 500; color: var(--text); width: 100%; outline: none; border-radius: 5px; min-width: 0; }
   .si-title:focus { border-color: var(--accent); background: var(--surface-warm); }
-  .si-hours { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: var(--surface-warm); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; color: var(--text-muted); }
-  .si-hours input { width: 38px; border: none; background: transparent; text-align: center; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text); outline: none; font-size: 12px; padding: 0; }
-  .si-assignee { width: 56px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-warm); text-align: center; text-transform: uppercase; font-weight: 700; font-size: 11.5px; color: var(--text-muted); outline: none; }
+  .si-hours { display: inline-flex; align-items: center; gap: 2px; padding: 2px 6px; background: var(--surface-warm); border: 1px solid var(--border); border-radius: 5px; font-size: 11px; color: var(--text-muted); }
+  .si-hours input { width: 32px; border: none; background: transparent; text-align: center; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text); outline: none; font-size: 11px; padding: 0; }
+  .si-assignee { width: 48px; padding: 3px 6px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface-warm); text-align: center; text-transform: uppercase; font-weight: 700; font-size: 11px; color: var(--text-muted); outline: none; }
   .si-assignee:focus { border-color: var(--accent); background: var(--surface); }
-  .si-actions { display: flex; gap: 2px; }
-  .si-actions button { width: 28px; height: 28px; padding: 0; display: grid; place-items: center; background: transparent; border: none; color: var(--text-soft); border-radius: 6px; cursor: pointer; font-size: 14px; position: relative; }
+  .si-actions { display: flex; gap: 1px; }
+  .si-actions button { width: 24px; height: 24px; padding: 0; display: grid; place-items: center; background: transparent; border: none; color: var(--text-soft); border-radius: 5px; cursor: pointer; font-size: 12px; position: relative; }
   .si-actions button:hover { background: var(--surface-warm); color: var(--text); }
   .si-actions button.has-content { color: var(--accent); }
   .si-actions button.danger:hover { color: var(--danger); background: var(--danger-soft); }
-  .si-actions .badge-count { position: absolute; top: -2px; right: -2px; background: var(--accent); color: #fff; border-radius: 8px; min-width: 14px; height: 14px; font-size: 9px; font-weight: 700; display: grid; place-items: center; padding: 0 3px; }
+  .si-actions .badge-count { position: absolute; top: -1px; right: -1px; background: var(--accent); color: #fff; border-radius: 7px; min-width: 12px; height: 12px; font-size: 8.5px; font-weight: 700; display: grid; place-items: center; padding: 0 2px; }
+  /* Dependency popover */
+  .dep-popover { position: absolute; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow-lg); padding: 8px; z-index: 350; min-width: 220px; max-height: 280px; overflow-y: auto; }
+  .dep-popover h4 { margin: 0 0 6px; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .dep-popover label { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 12.5px; }
+  .dep-popover label:hover { background: var(--surface-warm); }
+  .dep-popover input { accent-color: var(--accent); }
 
   /* Sub-gantt no modal */
   #sub-gantt .mini-gantt { background: var(--surface-warm); border-radius: 8px; padding: 10px; }
@@ -763,6 +770,33 @@ function renderSubtasksView() {
     </div>
   `;
 }
+function openDepPopover(sid, anchorEl) {
+  closeDepPopover();
+  const subject = state.subList.find(s => s.id === sid);
+  if (!subject) return;
+  const pop = document.createElement("div");
+  pop.className = "dep-popover"; pop.id = "dep-popover";
+  const others = state.subList.filter(s => s.id !== sid);
+  pop.innerHTML = `<h4>Depende de</h4>` + (others.length ? others.map(o => {
+    const idx = state.subList.indexOf(o) + 1;
+    const checked = (subject.dependsOn||[]).includes(o.id) ? "checked" : "";
+    return `<label><input type="checkbox" data-dep="${o.id}" ${checked} /> <span style="color:var(--text-soft);font-size:11px;font-weight:600;margin-right:4px">#${idx}</span>${escapeHtml(o.title || "(sem título)")}</label>`;
+  }).join("") : `<div style="font-size:12px;color:var(--text-soft);padding:6px">Sem outras subtarefas.</div>`);
+  document.body.appendChild(pop);
+  const rect = anchorEl.getBoundingClientRect();
+  const popWidth = 240; const left = Math.max(8, Math.min(window.innerWidth - popWidth - 8, rect.right - popWidth));
+  pop.style.top = (rect.bottom + window.scrollY + 6) + "px";
+  pop.style.left = (left + window.scrollX) + "px";
+  pop.querySelectorAll("input[data-dep]").forEach(cb => cb.addEventListener("change", () => {
+    if (cb.checked) { if (!subject.dependsOn) subject.dependsOn = []; if (!subject.dependsOn.includes(cb.dataset.dep)) subject.dependsOn.push(cb.dataset.dep); }
+    else { subject.dependsOn = (subject.dependsOn || []).filter(x => x !== cb.dataset.dep); }
+    renderSubTable(); renderSubGantt();
+  }));
+  setTimeout(() => document.addEventListener("click", outsideDepClick), 10);
+}
+function outsideDepClick(e) { if (!e.target.closest(".dep-popover") && !e.target.closest("[data-act='dep']")) closeDepPopover(); }
+function closeDepPopover() { const p = document.getElementById("dep-popover"); if (p) p.remove(); document.removeEventListener("click", outsideDepClick); }
+
 function bindSubtasksViewEvents() {
   $("#sub-back").addEventListener("click", closeSubtasksView);
   $("#sub-add-row").addEventListener("click", () => { state.subList.push(newSubtask()); state.subActiveId = state.subList[state.subList.length-1].id; renderSubTable(); renderSubGantt(); renderSubDetail(); });
@@ -1003,18 +1037,21 @@ function renderSubTable() {
   const wrap = $("#sub-rows");
   const list = state.subList || [];
   if (list.length === 0) { wrap.innerHTML = ""; return; }
-  wrap.innerHTML = list.map(st => {
+  wrap.innerHTML = list.map((st, idx) => {
     const ac = assigneeColor(st.assignee);
     const hasNotes = (st.description||"").trim().length > 0;
     const attCount = (st.attachments||[]).length;
+    const depCount = (st.dependsOn||[]).length;
     const isActive = state.subActiveId === st.id;
     const assigneeStyle = ac ? `style="color:${ac.text};background:${ac.bg};border-color:${ac.solid}"` : '';
     return `<div class="subtask-item ${st.status==='completed'?'completed':''} ${isActive?'active':''}" data-sid="${st.id}">
+      <div class="si-num">#${idx+1}</div>
       <input type="checkbox" class="si-check st-check" data-sid="${st.id}" ${st.status==='completed'?'checked':''} />
       <input type="text" class="si-title st-title" data-sid="${st.id}" value="${escapeHtml(st.title)}" placeholder="Título da subtarefa..." />
       <div class="si-hours"><input type="number" class="st-hours" data-sid="${st.id}" value="${st.estimatedHours}" min="0.25" step="0.25" />h</div>
       <input type="text" class="si-assignee st-assignee" data-sid="${st.id}" value="${escapeHtml(st.assignee||"")}" maxlength="6" placeholder="—" ${assigneeStyle} />
       <div class="si-actions">
+        <button data-act="dep" data-sid="${st.id}" class="${depCount>0?'has-content':''}" title="Dependências">↪${depCount>0?`<span class="badge-count">${depCount}</span>`:''}</button>
         <button data-act="notes" data-sid="${st.id}" class="${hasNotes?'has-content':''}" title="Notas">📝</button>
         <button data-act="att" data-sid="${st.id}" class="${attCount>0?'has-content':''}" title="Anexos">📎${attCount>0?`<span class="badge-count">${attCount}</span>`:''}</button>
         <button data-act="del" data-sid="${st.id}" class="danger" title="Eliminar">✕</button>
@@ -1035,6 +1072,7 @@ function renderSubTable() {
   wrap.querySelectorAll(".st-assignee").forEach(el => el.addEventListener("blur", () => {
     const st = state.subList.find(s=>s.id===el.dataset.sid); if (st) { st.assignee = el.value.trim().toUpperCase()||null; renderSubTable(); renderSubGantt(); }
   }));
+  wrap.querySelectorAll("[data-act='dep']").forEach(el => el.addEventListener("click", (e) => { e.stopPropagation(); openDepPopover(el.dataset.sid, el); }));
   wrap.querySelectorAll("[data-act='notes']").forEach(el => el.addEventListener("click", () => { state.subActiveId = el.dataset.sid; renderSubDetail(); renderSubTable(); }));
   wrap.querySelectorAll("[data-act='att']").forEach(el => el.addEventListener("click", () => { state.subActiveId = el.dataset.sid; renderSubDetail(); renderSubTable(); }));
   wrap.querySelectorAll("[data-act='del']").forEach(el => el.addEventListener("click", () => {
@@ -1062,23 +1100,119 @@ function renderSubDetail() {
     el.querySelector(".att-remove").onclick = (e) => { e.stopPropagation(); atts.splice(i, 1); renderSubDetail(); renderSubTable(); };
   });
 }
+// Agenda subtarefas: paralelo por delegado, sequencial mesmo delegado, respeita dependências
+function computeSubSchedule(subtasks, parentStartDate, settings) {
+  subtasks.forEach(s => { s.scheduledStart = null; s.scheduledEnd = null; });
+  // Ordem topológica: dependências antes dos dependentes
+  const remaining = subtasks.slice();
+  const ordered = [];
+  let safety = 0;
+  while (remaining.length > 0 && safety < 200) {
+    safety++;
+    for (let i = remaining.length - 1; i >= 0; i--) {
+      const s = remaining[i];
+      const deps = s.dependsOn || [];
+      const allReady = deps.every(did => ordered.find(o => o.id === did) || !subtasks.find(x => x.id === did));
+      if (allReady) { ordered.push(s); remaining.splice(i, 1); }
+    }
+  }
+  if (remaining.length > 0) ordered.push(...remaining); // ciclos: aceita restante
+
+  const usage = {};
+  for (const s of ordered) {
+    if (s.status === "completed") continue;
+    const assignee = s.assignee || "me";
+    if (!usage[assignee]) usage[assignee] = {};
+    const dayUsage = usage[assignee];
+    // Earliest start: max(parentStart, max(dep.scheduledEnd + 1))
+    let startDay = new Date(parentStartDate); startDay.setHours(0,0,0,0);
+    for (const did of (s.dependsOn || [])) {
+      const dep = subtasks.find(x => x.id === did);
+      if (dep && dep.scheduledEnd) {
+        const after = addDays(new Date(dep.scheduledEnd), 1);
+        if (after > startDay) startDay = after;
+      }
+    }
+    let rem = parseFloat(s.estimatedHours) || 0; if (rem <= 0) continue;
+    let d = new Date(startDay); let sf = 0;
+    while (rem > 0 && sf < 365) {
+      if (isWorkingDay(d, settings)) {
+        const key = isoDate(d); const used = dayUsage[key] || 0; const avail = settings.dailyHours - used;
+        if (avail > 0) {
+          const alloc = Math.min(rem, avail);
+          dayUsage[key] = used + alloc;
+          if (!s.scheduledStart) s.scheduledStart = key;
+          s.scheduledEnd = key;
+          rem -= alloc;
+        }
+      }
+      d = addDays(d, 1); sf++;
+    }
+  }
+}
+
 function renderSubGantt() {
   const inner = $("#sub-gantt");
   const list = state.subList || [];
   const t = state.tasks.find(x=>x.id===state.subTaskId);
-  if (!t || list.length === 0) { inner.innerHTML = `<div style="color:var(--text-soft);font-size:12px;padding:8px;background:var(--surface-warm);border-radius:8px">Sem subtarefas para mostrar.</div>`; return; }
-  const startDate = t.scheduledStart ? new Date(t.scheduledStart) : today0();
-  const endDate = new Date(t.deadline);
-  const totalH = list.reduce((s,x)=>s+(parseFloat(x.estimatedHours)||0),0) || 1;
-  let cum = 0;
-  const rows = list.map(st => {
-    const widthPct = ((parseFloat(st.estimatedHours)||0)/totalH)*100;
-    const leftPct = cum; cum += widthPct;
-    const ac = assigneeColor(st.assignee);
-    const bg = st.status==="completed" ? "var(--text-soft)" : (ac?ac.solid:"var(--accent)");
-    return `<div class="mg-row"><div class="mg-name" title="${escapeHtml(st.title)}">${escapeHtml(st.title||"—")}</div><div class="mg-track"><div class="mg-bar" style="left:${leftPct}%;width:${widthPct}%;background:${bg}">${st.estimatedHours}h${st.assignee?' · '+escapeHtml(st.assignee):''}</div></div></div>`;
+  if (!t) { inner.innerHTML = ""; return; }
+  if (list.length === 0) { inner.innerHTML = `<div style="color:var(--text-soft);font-size:12px;padding:10px;background:var(--surface-warm);border-radius:8px">Adiciona subtarefas para ver o cronograma.</div>`; return; }
+  const parentStart = t.scheduledStart ? new Date(t.scheduledStart) : today0();
+  computeSubSchedule(list, parentStart, state.settings);
+
+  let minDate = new Date(parentStart); minDate.setHours(0,0,0,0);
+  let maxDate = new Date(t.deadline);
+  list.forEach(s => { if (s.scheduledEnd) { const d = addDays(new Date(s.scheduledEnd), 1); if (d > maxDate) maxDate = d; } });
+  const totalDays = Math.max(7, dayDiff(maxDate, minDate));
+  const today = today0();
+
+  const TASK_COL = window.innerWidth <= 768 ? 130 : 200;
+  const containerW = (inner.clientWidth || $("#content").clientWidth - 40 || 800);
+  const visTimeline = Math.max(280, containerW - TASK_COL);
+  const dayWidth = Math.max(20, Math.floor(visTimeline / Math.min(totalDays, 28)));
+  const totalWidth = dayWidth * totalDays;
+
+  // Date header
+  let dateCells = "";
+  for (let i = 0; i < totalDays; i++) {
+    const d = addDays(minDate, i);
+    const isT = isoDate(d) === isoDate(today);
+    const isW = d.getDay() === 0 || d.getDay() === 6;
+    dateCells += `<div class="gantt-date ${isT?'today':''} ${isW?'weekend':''}">${d.getDate()}/${d.getMonth()+1}</div>`;
+  }
+
+  const rows = list.map((s, idx) => {
+    if (!s.scheduledStart) {
+      // Não agendada (sem horas?). Mostra linha vazia.
+      let dayCells = "";
+      for (let i = 0; i < totalDays; i++) { const d = addDays(minDate, i); const isW = d.getDay()===0||d.getDay()===6; dayCells += `<div class="gantt-day ${isW?'weekend':''}"></div>`; }
+      return `<div class="gantt-row"><div class="gantt-task-name"><span style="color:var(--text-soft);font-size:10.5px;margin-right:4px">#${idx+1}</span><span class="title" title="${escapeHtml(s.title)}">${escapeHtml(s.title||"—")}</span></div><div class="gantt-timeline" style="grid-template-columns: repeat(${totalDays}, ${dayWidth}px); width: ${totalWidth}px">${dayCells}</div></div>`;
+    }
+    const start = new Date(s.scheduledStart); const end = new Date(s.scheduledEnd);
+    const startOffset = dayDiff(start, minDate);
+    const duration = Math.max(1, dayDiff(end, start) + 1);
+    const left = startOffset * dayWidth; const width = duration * dayWidth - 2;
+    let dayCells = "";
+    for (let i = 0; i < totalDays; i++) {
+      const d = addDays(minDate, i);
+      const isT = isoDate(d) === isoDate(today);
+      const isW = d.getDay() === 0 || d.getDay() === 6;
+      dayCells += `<div class="gantt-day ${isT?'today':''} ${isW?'weekend':''}"></div>`;
+    }
+    const ac = assigneeColor(s.assignee);
+    const bg = s.status==="completed" ? "var(--text-soft)" : (ac ? ac.solid : "var(--accent)");
+    const numTag = `<span style="color:var(--text-soft);font-size:10.5px;margin-right:4px">#${idx+1}</span>`;
+    const depTag = (s.dependsOn && s.dependsOn.length) ? `<span style="font-size:10px;color:var(--text-soft);margin-left:4px" title="Depende de">↪${s.dependsOn.length}</span>` : '';
+    return `<div class="gantt-row" data-sid="${s.id}">
+      <div class="gantt-task-name">${numTag}<span class="title" title="${escapeHtml(s.title)}">${escapeHtml(s.title||"—")}</span>${depTag}</div>
+      <div class="gantt-timeline" style="grid-template-columns: repeat(${totalDays}, ${dayWidth}px); width: ${totalWidth}px">
+        ${dayCells}
+        <div class="gantt-bar" style="left:${left}px;width:${width}px;background:${bg}">${s.estimatedHours}h${s.assignee?' · '+escapeHtml(s.assignee):''}</div>
+      </div>
+    </div>`;
   }).join("");
-  inner.innerHTML = `<div class="mini-gantt"><div class="mg-header" style="padding-right:0;margin-left:180px"><span>${fmtDate(startDate)}</span><span>${fmtDate(endDate)}</span></div>${rows}</div>`;
+
+  inner.innerHTML = `<div class="gantt" style="--gantt-task-col:${TASK_COL}px"><div class="gantt-scroll"><div style="min-width:${TASK_COL+totalWidth}px;--gantt-task-col:${TASK_COL}px"><div class="gantt-header-row"><div class="gantt-cell-label">Subtarefa</div><div class="gantt-dates" style="grid-template-columns:repeat(${totalDays},${dayWidth}px);width:${totalWidth}px">${dateCells}</div></div>${rows}</div></div></div>`;
 }
 
 // Legacy stubs (old API)
@@ -1144,6 +1278,22 @@ function init() {
   window.addEventListener("focus", ()=>{if(accessToken) reloadFromDriveIfNewer();});
   document.addEventListener("visibilitychange", ()=>{if(document.visibilityState==="visible" && accessToken) reloadFromDriveIfNewer();});
   window.addEventListener("beforeunload", ()=>{if(saveTimer){clearTimeout(saveTimer); saveToDrive();}});
+
+  // Paste (Ctrl+V) de imagens — funciona quando edit-modal ou drilldown estão ativos
+  document.addEventListener("paste", async (e) => {
+    const items = (e.clipboardData || window.clipboardData)?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type && item.type.startsWith("image/")) {
+        const file = item.getAsFile();
+        if (!file) continue;
+        const editOpen = $("#edit-modal").classList.contains("active");
+        const drillActive = !!state.drilldownTaskId;
+        if (drillActive && state.subActiveId) { e.preventDefault(); state.attachTarget = "subtask-detail"; await handleAttachmentFile(file); return; }
+        if (editOpen) { e.preventDefault(); state.attachTarget = "task"; await handleAttachmentFile(file); return; }
+      }
+    }
+  });
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("service-worker.js").catch(()=>{});
 }
 document.addEventListener("DOMContentLoaded", init);
